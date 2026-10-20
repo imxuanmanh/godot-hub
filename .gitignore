@@ -1,0 +1,13 @@
+# Godot-generated cache and imported resources
+.godot/
+
+# Exported Windows build artifacts
+/Godot Hub.exe
+/Godot Hub.console.exe
+/Godot Hub.pck
+
+# Editor and OS metadata
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
