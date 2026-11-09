@@ -1,0 +1,111 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/ProjectsTab.gd" id="1"]
+
+[node name="ProjectsTab" type="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+script = ExtResource("1")
+
+[node name="Header" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleBlock" type="VBoxContainer" parent="Header"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Title" type="Label" parent="Header/TitleBlock"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Project"
+
+[node name="Subtitle" type="Label" parent="Header/TitleBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 12
+text = "Dự án Godot bạn đang quản lý"
+
+[node name="Spacer" type="Control" parent="Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AddButton" type="Button" parent="Header"]
+layout_mode = 2
+text = "+ Thêm project"
+
+[node name="Toolbar" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="RemoveButton" type="Button" parent="Toolbar"]
+layout_mode = 2
+text = "Xóa"
+
+[node name="ToolbarSpacer" type="Control" parent="Toolbar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CountLabel" type="Label" parent="Toolbar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 12
+text = "0 project"
+vertical_alignment = 1
+
+[node name="ListStack" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Stack" type="Control" parent="ListStack"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Scroll" type="ScrollContainer" parent="ListStack/Stack"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="Items" type="VBoxContainer" parent="ListStack/Stack/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="EmptyState" type="Label" parent="ListStack/Stack"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 14
+text = "Chưa có project nào.\nNhấn + Thêm project để bắt đầu."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="LaunchPanel" type="PanelContainer" parent="."]
+layout_mode = 2
+
+[node name="Content" type="HBoxContainer" parent="LaunchPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="EngineLabel" type="Label" parent="LaunchPanel/Content"]
+layout_mode = 2
+text = "Phiên bản Godot"
+
+[node name="EngineSelector" type="OptionButton" parent="LaunchPanel/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LaunchButton" type="Button" parent="LaunchPanel/Content"]
+layout_mode = 2
+text = "Mở project"

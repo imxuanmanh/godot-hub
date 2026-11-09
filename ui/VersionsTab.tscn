@@ -1,0 +1,99 @@
+[gd_scene format=3 uid="uid://bn1u1ifgbuca0"]
+
+[ext_resource type="Script" uid="uid://dgstrw8u0nkl3" path="res://ui/VersionsTab.gd" id="1"]
+
+[node name="VersionsTab" type="VBoxContainer" unique_id=1894632379]
+theme_override_constants/separation = 12
+script = ExtResource("1")
+
+[node name="Header" type="HBoxContainer" parent="." unique_id=1070841064]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleBlock" type="VBoxContainer" parent="Header" unique_id=484078491]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Title" type="Label" parent="Header/TitleBlock" unique_id=790817814]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Phiên bản"
+
+[node name="Subtitle" type="Label" parent="Header/TitleBlock" unique_id=848217474]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 12
+text = "Các bản Godot Standard và Mono đã thêm"
+
+[node name="Spacer" type="Control" parent="Header" unique_id=17206935]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AddButton" type="Button" parent="Header" unique_id=1735240490]
+layout_mode = 2
+text = "+ Thêm phiên bản"
+
+[node name="Toolbar" type="HBoxContainer" parent="." unique_id=447645358]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="RemoveButton" type="Button" parent="Toolbar" unique_id=1669622373]
+layout_mode = 2
+text = "Xóa"
+
+[node name="SetDefaultButton" type="Button" parent="Toolbar" unique_id=814007306]
+layout_mode = 2
+text = "Đặt mặc định"
+
+[node name="DownloadButton" type="Button" parent="Toolbar" unique_id=1194675388]
+layout_mode = 2
+text = "Tải phiên bản mới"
+
+[node name="ToolbarSpacer" type="Control" parent="Toolbar" unique_id=1718086729]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CountLabel" type="Label" parent="Toolbar" unique_id=1045649561]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 12
+text = "0 phiên bản"
+vertical_alignment = 1
+
+[node name="ListStack" type="PanelContainer" parent="." unique_id=825373371]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Stack" type="Control" parent="ListStack" unique_id=1410951399]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Scroll" type="ScrollContainer" parent="ListStack/Stack" unique_id=634367771]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="Items" type="VBoxContainer" parent="ListStack/Stack/Scroll" unique_id=1167481703]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="EmptyState" type="Label" parent="ListStack/Stack" unique_id=1410415697]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 14
+text = "Chưa có phiên bản nào.
+Nhấn + Thêm phiên bản để bắt đầu."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2

@@ -1,0 +1,211 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://GodotHubTheme.tres" id="1"]
+[ext_resource type="Script" path="res://modules/version_manager/add_version_dialog.gd" id="2"]
+
+[node name="AddVersionDialog" type="Window"]
+title = "Thêm phiên bản Godot"
+initial_position = 2
+size = Vector2i(760, 640)
+visible = false
+exclusive = true
+transient = true
+theme = ExtResource("1")
+script = ExtResource("2")
+
+[node name="Content" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
+
+[node name="Root" type="VBoxContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Tabs" type="TabContainer" parent="Content/Root"]
+layout_mode = 2
+size_flags_vertical = 3
+current_tab = 0
+
+[node name="File" type="VBoxContainer" parent="Content/Root/Tabs"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="FileBox" type="VBoxContainer" parent="Content/Root/Tabs/File"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="FileTitle" type="Label" parent="Content/Root/Tabs/File/FileBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Thêm từ file trên máy"
+
+[node name="FileHint" type="Label" parent="Content/Root/Tabs/File/FileBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 12
+text = "Chọn file thực thi Godot có sẵn (Godot_v...exe trên Windows, Godot_v... trên Linux, hoặc file .app trên macOS)."
+autowrap_mode = 2
+
+[node name="ChooseFileButton" type="Button" parent="Content/Root/Tabs/File/FileBox"]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "+ Chọn file Godot"
+
+[node name="Url" type="VBoxContainer" parent="Content/Root/Tabs"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="UrlBox" type="VBoxContainer" parent="Content/Root/Tabs/Url"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="UrlTitle" type="Label" parent="Content/Root/Tabs/Url/UrlBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Tải từ URL"
+
+[node name="UrlHint" type="Label" parent="Content/Root/Tabs/Url/UrlBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 12
+text = "Dán liên kết tới gói .zip của Godot (GitHub Releases hoặc máy chủ khác). Gói sẽ được tải, giải nén và thêm vào danh sách."
+autowrap_mode = 2
+
+[node name="UrlForm" type="VBoxContainer" parent="Content/Root/Tabs/Url/UrlBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="UrlLabel" type="Label" parent="Content/Root/Tabs/Url/UrlBox/UrlForm"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "URL gói .zip"
+
+[node name="UrlEdit" type="LineEdit" parent="Content/Root/Tabs/Url/UrlBox/UrlForm"]
+layout_mode = 2
+placeholder_text = "https://github.com/godotengine/godot/releases/download/..."
+
+[node name="NameLabel" type="Label" parent="Content/Root/Tabs/Url/UrlBox/UrlForm"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Tên hiển thị (tùy chọn)"
+
+[node name="NameEdit" type="LineEdit" parent="Content/Root/Tabs/Url/UrlBox/UrlForm"]
+layout_mode = 2
+placeholder_text = "Godot 4.3 Mono"
+
+[node name="DownloadUrlButton" type="Button" parent="Content/Root/Tabs/Url/UrlBox/UrlForm"]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Tải về và thêm"
+
+[node name="Available" type="VBoxContainer" parent="Content/Root/Tabs"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="AvailableToolbar" type="HBoxContainer" parent="Content/Root/Tabs/Available"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="RefreshButton" type="Button" parent="Content/Root/Tabs/Available/AvailableToolbar"]
+layout_mode = 2
+text = "Làm mới từ GitHub"
+
+[node name="OpenArchiveButton" type="Button" parent="Content/Root/Tabs/Available/AvailableToolbar"]
+layout_mode = 2
+text = "Mở trang archive"
+
+[node name="ToolbarSpacer" type="Control" parent="Content/Root/Tabs/Available/AvailableToolbar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AvailableCount" type="Label" parent="Content/Root/Tabs/Available/AvailableToolbar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 12
+text = "0 phiên bản"
+vertical_alignment = 1
+
+[node name="AvailableList" type="PanelContainer" parent="Content/Root/Tabs/Available"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Stack" type="Control" parent="Content/Root/Tabs/Available/AvailableList"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Scroll" type="ScrollContainer" parent="Content/Root/Tabs/Available/AvailableList/Stack"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="Items" type="VBoxContainer" parent="Content/Root/Tabs/Available/AvailableList/Stack/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="EmptyState" type="Label" parent="Content/Root/Tabs/Available/AvailableList/Stack"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 14
+text = "Chưa có phiên bản nào.\nNhấn “Làm mới từ GitHub” để tải danh sách mới nhất."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="StatusBox" type="VBoxContainer" parent="Content/Root"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="StatusLabel" type="Label" parent="Content/Root/StatusBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 12
+text = "Chọn nguồn để thêm phiên bản Godot."
+autowrap_mode = 2
+
+[node name="ProgressBar" type="ProgressBar" parent="Content/Root/StatusBox"]
+layout_mode = 2
+show_percentage = false
+
+[node name="Footer" type="HBoxContainer" parent="Content/Root"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="FooterSpacer" type="Control" parent="Content/Root/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CloseButton" type="Button" parent="Content/Root/Footer"]
+layout_mode = 2
+text = "Đóng"
+
+[node name="FileDialog" type="FileDialog" parent="."]
+title = "Chọn file thực thi Godot"
+size = Vector2i(760, 480)
+ok_button_text = "Chọn"
+file_mode = 0
+access = 2
+
+[node name="Http" type="HTTPRequest" parent="."]
+
+[node name="ApiHttp" type="HTTPRequest" parent="."]

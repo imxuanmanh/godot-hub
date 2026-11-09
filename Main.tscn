@@ -1,114 +1,102 @@
-[gd_scene format=3 uid="uid://bqx6yv0h8n8k1"]
+[gd_scene load_steps=7 format=3 uid="uid://bqx6yv0h8n8k1"]
 
-[ext_resource type="Script" uid="uid://conc6d8ikq0ch" path="res://Main.gd" id="1"]
+[ext_resource type="Script" path="res://Main.gd" id="1"]
+[ext_resource type="Theme" path="res://GodotHubTheme.tres" id="2"]
+[ext_resource type="PackedScene" path="res://ui/VersionsTab.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://ui/ProjectsTab.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://modules/version_manager/add_version_dialog.tscn" id="5"]
+[ext_resource type="Texture2D" uid="uid://ikbs7q0mubfu" path="res://assets/godot-hub-logo.svg" id="6"]
 
-[node name="Main" type="Control" unique_id=68923270]
+[node name="Main" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("2")
 script = ExtResource("1")
 
-[node name="TabContainer" type="TabContainer" parent="." unique_id=179553058]
+[node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-current_tab = 1
+color = Color(0.117647, 0.133333, 0.156863, 1)
 
-[node name="Versions" type="VBoxContainer" parent="TabContainer" unique_id=1102457925]
-visible = false
+[node name="Layout" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 16
+
+[node name="Root" type="VBoxContainer" parent="Layout"]
 layout_mode = 2
-theme_override_constants/separation = 8
-metadata/_tab_index = 0
+theme_override_constants/separation = 14
 
-[node name="VersionButtons" type="HBoxContainer" parent="TabContainer/Versions" unique_id=1540273371]
+[node name="Header" type="HBoxContainer" parent="Layout/Root"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 12
 
-[node name="AddVersionButton" type="Button" parent="TabContainer/Versions/VersionButtons" unique_id=1642074478]
+[node name="Brand" type="TextureRect" parent="Layout/Root/Header"]
+custom_minimum_size = Vector2(72, 72)
 layout_mode = 2
-text = "Thêm phiên bản..."
+texture = ExtResource("6")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="RemoveVersionButton" type="Button" parent="TabContainer/Versions/VersionButtons" unique_id=379381735]
+[node name="TitleBlock" type="VBoxContainer" parent="Layout/Root/Header"]
 layout_mode = 2
-text = "Xóa"
+theme_override_constants/separation = 0
 
-[node name="SetDefaultButton" type="Button" parent="TabContainer/Versions/VersionButtons" unique_id=1315177587]
+[node name="AppTitle" type="Label" parent="Layout/Root/Header/TitleBlock"]
 layout_mode = 2
-text = "Đặt mặc định"
+theme_override_font_sizes/font_size = 22
+text = "Godot Hub"
 
-[node name="OpenDownloadPageButton" type="Button" parent="TabContainer/Versions/VersionButtons" unique_id=946777442]
+[node name="AppSubtitle" type="Label" parent="Layout/Root/Header/TitleBlock"]
 layout_mode = 2
-text = "Tải phiên bản mới..."
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 12
+text = "Quản lý song song nhiều phiên bản Godot"
 
-[node name="VersionsList" type="ItemList" parent="TabContainer/Versions" unique_id=667060889]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="Projects" type="VBoxContainer" parent="TabContainer" unique_id=225744644]
-layout_mode = 2
-theme_override_constants/separation = 8
-metadata/_tab_index = 1
-
-[node name="ProjectButtons" type="HBoxContainer" parent="TabContainer/Projects" unique_id=795877554]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="AddProjectButton" type="Button" parent="TabContainer/Projects/ProjectButtons" unique_id=906959863]
-layout_mode = 2
-text = "Thêm project..."
-
-[node name="RemoveProjectButton" type="Button" parent="TabContainer/Projects/ProjectButtons" unique_id=379610567]
-layout_mode = 2
-text = "Xóa"
-
-[node name="ProjectsList" type="ItemList" parent="TabContainer/Projects" unique_id=765362]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="LaunchBar" type="HBoxContainer" parent="TabContainer/Projects" unique_id=372294639]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="EngineLabel" type="Label" parent="TabContainer/Projects/LaunchBar" unique_id=970745966]
-layout_mode = 2
-text = "Phiên bản Godot:"
-
-[node name="EngineSelector" type="OptionButton" parent="TabContainer/Projects/LaunchBar" unique_id=965779842]
+[node name="Spacer" type="Control" parent="Layout/Root/Header"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="LaunchButton" type="Button" parent="TabContainer/Projects/LaunchBar" unique_id=19813282]
+[node name="HeaderLine" type="ColorRect" parent="Layout/Root"]
+custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
-text = "Mở project"
+color = Color(0.239216, 0.266667, 0.309804, 1)
 
-[node name="AddVersionDialog" type="FileDialog" parent="." unique_id=1829040361]
-title = "Open a File"
-size = Vector2i(700, 450)
-ok_button_text = "Chọn"
-file_mode = 0
-access = 2
+[node name="TabContainer" type="TabContainer" parent="Layout/Root"]
+layout_mode = 2
+size_flags_vertical = 3
+current_tab = 0
 
-[node name="AddProjectDialog" type="FileDialog" parent="." unique_id=733992202]
-title = "Open a File"
-size = Vector2i(700, 450)
+[node name="Versions" parent="Layout/Root/TabContainer" instance=ExtResource("3")]
+layout_mode = 2
+
+[node name="Projects" parent="Layout/Root/TabContainer" instance=ExtResource("4")]
+visible = false
+layout_mode = 2
+
+[node name="AddVersionDialog" parent="." instance=ExtResource("5")]
+
+[node name="AddProjectDialog" type="FileDialog" parent="."]
+title = "Chọn project.godot"
+size = Vector2i(760, 480)
 ok_button_text = "Chọn"
 file_mode = 0
 access = 2
 filters = PackedStringArray("*.godot ; Godot Project Files")
 
-[connection signal="pressed" from="TabContainer/Versions/VersionButtons/AddVersionButton" to="." method="_on_add_version_pressed"]
-[connection signal="pressed" from="TabContainer/Versions/VersionButtons/RemoveVersionButton" to="." method="_on_remove_version_pressed"]
-[connection signal="pressed" from="TabContainer/Versions/VersionButtons/SetDefaultButton" to="." method="_on_set_default_pressed"]
-[connection signal="pressed" from="TabContainer/Versions/VersionButtons/OpenDownloadPageButton" to="." method="_on_open_download_page_pressed"]
-[connection signal="pressed" from="TabContainer/Projects/ProjectButtons/AddProjectButton" to="." method="_on_add_project_pressed"]
-[connection signal="pressed" from="TabContainer/Projects/ProjectButtons/RemoveProjectButton" to="." method="_on_remove_project_pressed"]
-[connection signal="item_selected" from="TabContainer/Projects/ProjectsList" to="." method="_on_project_selected"]
-[connection signal="pressed" from="TabContainer/Projects/LaunchBar/LaunchButton" to="." method="_on_launch_pressed"]
-[connection signal="file_selected" from="AddVersionDialog" to="." method="_on_version_file_selected"]
 [connection signal="file_selected" from="AddProjectDialog" to="." method="_on_project_file_selected"]
