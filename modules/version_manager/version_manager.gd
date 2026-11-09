@@ -221,13 +221,13 @@ static func install_zip(zip_path: String, preferred_name: String) -> Dictionary:
 	ensure_dir(STORAGE_DIR)
 	var dest := _unique_dir(folder)
 	if not extract_zip(zip_path, dest):
-		return {"ok": false, "error": "Giải nén thất bại."}
+		return {"ok": false, "error": str(TranslationServer.translate("ERR_EXTRACT_FAILED"))}
 
 	var executable := find_executable(dest)
 	if executable.is_empty():
 		return {
 			"ok": false,
-			"error": "Không tìm thấy file thực thi Godot trong gói.",
+			"error": str(TranslationServer.translate("ERR_EXECUTABLE_NOT_FOUND")),
 			"dir": dest,
 		}
 

@@ -3,6 +3,7 @@
 
 # Exported Windows build artifacts
 /Godot Hub.exe
+/Godot Hub.exe~*.TMP
 /Godot Hub.console.exe
 /Godot Hub.pck
 

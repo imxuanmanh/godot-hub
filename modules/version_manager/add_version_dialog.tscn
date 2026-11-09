@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3]
 
-[ext_resource type="Theme" path="res://GodotHubTheme.tres" id="1"]
+[ext_resource type="Theme" path="res://ui/theme/GodotHubTheme.tres" id="1"]
 [ext_resource type="Script" path="res://modules/version_manager/add_version_dialog.gd" id="2"]
 
 [node name="AddVersionDialog" type="Window"]

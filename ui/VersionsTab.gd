@@ -11,27 +11,41 @@ const ITEM_SCENE := preload("res://ui/VersionItem.tscn")
 var _versions: Array = []
 var _items: Array = []
 var _selected_index := -1
+var _context_index := -1
 var _button_group := ButtonGroup.new()
 
 @onready var items_container: VBoxContainer = $ListStack/Stack/Scroll/Items
 @onready var empty_state: Label = $ListStack/Stack/EmptyState
-@onready var count_label: Label = $Toolbar/CountLabel
-@onready var remove_button: Button = $Toolbar/RemoveButton
-@onready var set_default_button: Button = $Toolbar/SetDefaultButton
+@onready var count_label: Label = $Header/CountLabel
+@onready var remove_button: Button = $Header/RemoveButton
+@onready var set_default_button: Button = $Header/SetDefaultButton
+@onready var add_button: Button = $Header/AddButton
+@onready var download_button: Button = $Header/DownloadButton
+@onready var context_menu: PopupMenu = $ContextMenu
 
 
 func _ready() -> void:
-	$Header/AddButton.pressed.connect(_on_add_pressed)
-	$Toolbar/DownloadButton.pressed.connect(_on_download_pressed)
+	$Header/TitleBlock/Title.text = tr("VERSIONS_TITLE")
+	$Header/TitleBlock/Subtitle.text = tr("VERSIONS_SUBTITLE")
+	add_button.text = tr("VERSIONS_ADD")
+	remove_button.text = tr("COMMON_REMOVE")
+	set_default_button.text = tr("VERSIONS_SET_DEFAULT")
+	download_button.text = tr("VERSIONS_DOWNLOAD")
+	empty_state.text = tr("VERSIONS_EMPTY")
+	count_label.text = tr("VERSIONS_COUNT") % _versions.size()
+
+	add_button.pressed.connect(_on_add_pressed)
+	download_button.pressed.connect(_on_download_pressed)
 	remove_button.pressed.connect(_emit_remove)
 	set_default_button.pressed.connect(_emit_set_default)
+	context_menu.id_pressed.connect(_on_context_menu_pressed)
 	_update_actions()
 
 
 func set_versions(new_versions: Array) -> void:
 	_versions = new_versions
 	_rebuild_items()
-	count_label.text = "%d phiên bản" % _versions.size()
+	count_label.text = tr("VERSIONS_COUNT") % _versions.size()
 	_update_actions()
 	_update_empty_state()
 
@@ -53,6 +67,7 @@ func _rebuild_items() -> void:
 		items_container.add_child(item)
 		item.button_group = _button_group
 		item.setup(_versions[i], i)
+		item.context_requested.connect(_on_item_context_requested)
 		_items.append(item)
 
 
@@ -62,6 +77,38 @@ func _on_item_pressed(button: BaseButton) -> void:
 		return
 	_selected_index = item.index
 	_update_actions()
+
+
+func _select_item(index: int) -> void:
+	if index < 0 or index >= _items.size():
+		return
+	_selected_index = index
+	_items[index].button_pressed = true
+	_update_actions()
+
+
+func _on_item_context_requested(index: int, screen_position: Vector2) -> void:
+	_select_item(index)
+	_context_index = index
+	var is_default := index < _versions.size() and bool(_versions[index].is_default)
+	context_menu.clear()
+	context_menu.add_item(tr("VERSIONS_SET_DEFAULT"), 0)
+	context_menu.set_item_disabled(0, is_default)
+	context_menu.add_separator()
+	context_menu.add_item(tr("COMMON_REMOVE"), 1)
+	context_menu.position = Vector2i(screen_position)
+	context_menu.popup()
+
+
+func _on_context_menu_pressed(id: int) -> void:
+	var index := _context_index
+	_context_index = -1
+	if index < 0:
+		return
+	if id == 0:
+		set_default_requested.emit(index)
+	elif id == 1:
+		remove_requested.emit(index)
 
 
 func _on_add_pressed() -> void:

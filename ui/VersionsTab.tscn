@@ -29,36 +29,28 @@ text = "Các bản Godot Standard và Mono đã thêm"
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="AddButton" type="Button" parent="Header" unique_id=1735240490]
-layout_mode = 2
-text = "+ Thêm phiên bản"
-
-[node name="Toolbar" type="HBoxContainer" parent="." unique_id=447645358]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="RemoveButton" type="Button" parent="Toolbar" unique_id=1669622373]
-layout_mode = 2
-text = "Xóa"
-
-[node name="SetDefaultButton" type="Button" parent="Toolbar" unique_id=814007306]
-layout_mode = 2
-text = "Đặt mặc định"
-
-[node name="DownloadButton" type="Button" parent="Toolbar" unique_id=1194675388]
-layout_mode = 2
-text = "Tải phiên bản mới"
-
-[node name="ToolbarSpacer" type="Control" parent="Toolbar" unique_id=1718086729]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="CountLabel" type="Label" parent="Toolbar" unique_id=1045649561]
+[node name="CountLabel" type="Label" parent="Header" unique_id=1045649561]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
 theme_override_font_sizes/font_size = 12
 text = "0 phiên bản"
 vertical_alignment = 1
+
+[node name="DownloadButton" type="Button" parent="Header" unique_id=1194675388]
+layout_mode = 2
+text = "Tải phiên bản mới"
+
+[node name="SetDefaultButton" type="Button" parent="Header" unique_id=814007306]
+layout_mode = 2
+text = "Đặt mặc định"
+
+[node name="RemoveButton" type="Button" parent="Header" unique_id=1669622373]
+layout_mode = 2
+text = "Xóa"
+
+[node name="AddButton" type="Button" parent="Header" unique_id=1735240490]
+layout_mode = 2
+text = "+ Thêm phiên bản"
 
 [node name="ListStack" type="PanelContainer" parent="." unique_id=825373371]
 custom_minimum_size = Vector2(0, 200)
@@ -97,3 +89,5 @@ Nhấn + Thêm phiên bản để bắt đầu."
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
+
+[node name="ContextMenu" type="PopupMenu" parent="."]

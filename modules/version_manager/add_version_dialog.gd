@@ -15,7 +15,13 @@ var _downloading := false
 @onready var progress_bar: ProgressBar = $Content/Root/StatusBox/ProgressBar
 @onready var close_button: Button = $Content/Root/Footer/CloseButton
 @onready var choose_file_button: Button = $Content/Root/Tabs/File/FileBox/ChooseFileButton
+@onready var file_title: Label = $Content/Root/Tabs/File/FileBox/FileTitle
+@onready var file_hint: Label = $Content/Root/Tabs/File/FileBox/FileHint
 @onready var file_dialog: FileDialog = $FileDialog
+@onready var url_title: Label = $Content/Root/Tabs/Url/UrlBox/UrlTitle
+@onready var url_hint: Label = $Content/Root/Tabs/Url/UrlBox/UrlHint
+@onready var url_label: Label = $Content/Root/Tabs/Url/UrlBox/UrlForm/UrlLabel
+@onready var name_label: Label = $Content/Root/Tabs/Url/UrlBox/UrlForm/NameLabel
 @onready var url_edit: LineEdit = $Content/Root/Tabs/Url/UrlBox/UrlForm/UrlEdit
 @onready var name_edit: LineEdit = $Content/Root/Tabs/Url/UrlBox/UrlForm/NameEdit
 @onready var download_url_button: Button = $Content/Root/Tabs/Url/UrlBox/UrlForm/DownloadUrlButton
@@ -29,9 +35,26 @@ var _downloading := false
 
 
 func _ready() -> void:
-	tabs.set_tab_title(0, "Từ file")
-	tabs.set_tab_title(1, "Từ URL")
-	tabs.set_tab_title(2, "Có sẵn")
+	title = tr("ADD_VERSION_TITLE")
+	tabs.set_tab_title(0, tr("ADD_TAB_FILE"))
+	tabs.set_tab_title(1, tr("ADD_TAB_URL"))
+	tabs.set_tab_title(2, tr("ADD_TAB_AVAILABLE"))
+	file_title.text = tr("ADD_FILE_TITLE")
+	file_hint.text = tr("ADD_FILE_HINT")
+	choose_file_button.text = tr("ADD_CHOOSE_FILE")
+	url_title.text = tr("ADD_URL_TITLE")
+	url_hint.text = tr("ADD_URL_HINT")
+	url_label.text = tr("ADD_URL_LABEL")
+	name_label.text = tr("ADD_NAME_LABEL")
+	download_url_button.text = tr("ADD_DOWNLOAD_ADD")
+	refresh_button.text = tr("ADD_REFRESH")
+	open_archive_button.text = tr("ADD_OPEN_ARCHIVE")
+	close_button.text = tr("COMMON_CLOSE")
+	file_dialog.title = tr("ADD_FILE_DIALOG_TITLE")
+	file_dialog.ok_button_text = tr("COMMON_CHOOSE")
+	empty_state.text = tr("ADD_AVAILABLE_EMPTY")
+	available_count.text = tr("ADD_AVAILABLE_COUNT") % 0
+
 	close_requested.connect(_on_close)
 	close_button.pressed.connect(_on_close)
 	choose_file_button.pressed.connect(_on_choose_file)
@@ -49,7 +72,7 @@ func _process(_delta: float) -> void:
 		return
 	var megabytes := http.get_downloaded_bytes() / 1048576.0
 	progress_bar.value = fmod(megabytes * 8.0, 100.0)
-	status_label.text = "Đang tải… %.1f MB" % megabytes
+	status_label.text = tr("ADD_STATUS_DOWNLOADING") % megabytes
 
 
 func open_dialog() -> void:
@@ -58,7 +81,7 @@ func open_dialog() -> void:
 	progress_bar.visible = false
 	download_url_button.disabled = false
 	refresh_button.disabled = false
-	_set_status("Chọn nguồn để thêm phiên bản Godot.", false)
+	_set_status(tr("ADD_STATUS_CHOOSE"), false)
 	if _candidates.is_empty():
 		var cached := VersionManager.load_cache()
 		_candidates = cached if not cached.is_empty() else VersionManager.known_candidates()
@@ -89,10 +112,10 @@ func _on_file_selected(path: String) -> void:
 func _on_download_url() -> void:
 	var url := url_edit.text.strip_edges()
 	if url.is_empty():
-		_set_status("Hãy nhập URL gói .zip của Godot.", true)
+		_set_status(tr("ERR_URL_EMPTY"), true)
 		return
 	if not url.begins_with("http://") and not url.begins_with("https://"):
-		_set_status("URL phải bắt đầu bằng http:// hoặc https://.", true)
+		_set_status(tr("ERR_URL_SCHEME"), true)
 		return
 	var display := name_edit.text.strip_edges()
 	if display.is_empty():
@@ -104,29 +127,29 @@ func _on_download_url() -> void:
 
 func _fetch_releases() -> void:
 	refresh_button.disabled = true
-	_set_status("Đang tải danh sách phiên bản từ GitHub…", false)
+	_set_status(tr("ADD_STATUS_FETCHING"), false)
 	var err := api_http.request(
 		VersionManager.GITHUB_RELEASES_API,
 		PackedStringArray(["User-Agent: GodotHub/1.0", "Accept: application/vnd.github+json"])
 	)
 	if err != OK:
 		refresh_button.disabled = false
-		_set_status("Không gửi được yêu cầu (mã %d)." % err, true)
+		_set_status(tr("ERR_REQUEST_SEND") % err, true)
 
 
 func _on_api_completed(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	refresh_button.disabled = false
 	if result != HTTPRequest.RESULT_SUCCESS or code != 200:
-		_set_status("Không tải được manifest (HTTP %d). Đang dùng danh sách có sẵn." % code, true)
+		_set_status(tr("ERR_MANIFEST_HTTP") % code, true)
 		return
 	var list := VersionManager.parse_github_releases(body.get_string_from_utf8())
 	if list.is_empty():
-		_set_status("Manifest rỗng. Đang dùng danh sách có sẵn.", true)
+		_set_status(tr("ERR_MANIFEST_EMPTY"), true)
 		return
 	_candidates = list
 	VersionManager.save_cache(list)
 	_rebuild_list()
-	_set_status("Đã cập nhật %d phiên bản từ GitHub." % VersionManager.group_by_version(list).size(), false)
+	_set_status(tr("ADD_STATUS_UPDATED") % VersionManager.group_by_version(list).size(), false)
 
 
 func _rebuild_list() -> void:
@@ -139,7 +162,7 @@ func _rebuild_list() -> void:
 		items_container.add_child(entry)
 		entry.setup(group)
 		entry.download_requested.connect(_on_entry_download)
-	available_count.text = "%d phiên bản" % groups.size()
+	available_count.text = tr("ADD_AVAILABLE_COUNT") % groups.size()
 	empty_state.visible = groups.is_empty()
 
 
@@ -160,7 +183,7 @@ func _start_download(url: String, display_name: String, meta: Dictionary) -> voi
 	if _downloading:
 		return
 	if url.is_empty():
-		_set_status("URL tải về không hợp lệ.", true)
+		_set_status(tr("ERR_DOWNLOAD_URL_INVALID"), true)
 		return
 	VersionManager.ensure_dir(VersionManager.DOWNLOAD_DIR)
 	var temp_path := VersionManager.DOWNLOAD_DIR.path_join("dl_%d.zip" % Time.get_ticks_usec())
@@ -169,7 +192,7 @@ func _start_download(url: String, display_name: String, meta: Dictionary) -> voi
 	var err := http.request(url)
 	if err != OK:
 		http.download_file = ""
-		_set_status("Không bắt đầu được tải về (mã %d)." % err, true)
+		_set_status(tr("ERR_DOWNLOAD_START") % err, true)
 		return
 	_pending = {"url": url, "name": display_name, "temp": temp_path}
 	_pending.merge(meta)
@@ -179,7 +202,7 @@ func _start_download(url: String, display_name: String, meta: Dictionary) -> voi
 	download_url_button.disabled = true
 	refresh_button.disabled = true
 	_set_list_enabled(false)
-	_set_status("Đang tải %s…" % url.get_file(), false)
+	_set_status(tr("ADD_STATUS_DOWNLOADING_FILE") % url.get_file(), false)
 
 
 func _on_download_completed(result: int, code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
@@ -196,20 +219,20 @@ func _on_download_completed(result: int, code: int, _headers: PackedStringArray,
 	_pending = {}
 
 	if result != HTTPRequest.RESULT_SUCCESS or code != 200:
-		_set_status("Tải thất bại (HTTP %d)." % code, true)
+		_set_status(tr("ERR_DOWNLOAD_FAILED") % code, true)
 		VersionManager.remove_path(str(pending.get("temp", "")))
 		return
 
 	var temp_path := str(pending.get("temp", ""))
 	if not FileAccess.file_exists(temp_path):
-		_set_status("Tệp tải về không tồn tại.", true)
+		_set_status(tr("ERR_DOWNLOAD_MISSING"), true)
 		return
 
-	_set_status("Đang giải nén…", false)
+	_set_status(tr("ADD_STATUS_EXTRACTING"), false)
 	var installed := VersionManager.install_zip(temp_path, str(pending.get("name", "")))
 	VersionManager.remove_path(temp_path)
 	if not bool(installed.get("ok", false)):
-		_set_status(str(installed.get("error", "Cài đặt thất bại.")), true)
+		_set_status(str(installed.get("error", tr("ERR_INSTALL_FAILED"))), true)
 		return
 
 	var display := str(pending.get("name", ""))
@@ -221,7 +244,7 @@ func _on_download_completed(result: int, code: int, _headers: PackedStringArray,
 		"path": str(installed.get("executable", "")),
 		"is_mono": is_mono,
 	})
-	_set_status("Đã thêm %s." % display, false)
+	_set_status(tr("ADD_STATUS_ADDED") % display, false)
 	hide()
 
 

@@ -1,11 +1,13 @@
-[gd_scene load_steps=7 format=3 uid="uid://bqx6yv0h8n8k1"]
+[gd_scene load_steps=9 format=3 uid="uid://bqx6yv0h8n8k1"]
 
 [ext_resource type="Script" path="res://Main.gd" id="1"]
-[ext_resource type="Theme" path="res://GodotHubTheme.tres" id="2"]
+[ext_resource type="Theme" path="res://ui/theme/GodotHubTheme.tres" id="2"]
 [ext_resource type="PackedScene" path="res://ui/VersionsTab.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://ui/ProjectsTab.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://modules/version_manager/add_version_dialog.tscn" id="5"]
 [ext_resource type="Texture2D" uid="uid://ikbs7q0mubfu" path="res://assets/godot-hub-logo.svg" id="6"]
+[ext_resource type="PackedScene" path="res://ui/SettingsTab.tscn" id="7"]
+[ext_resource type="Texture2D" path="res://assets/github-mark.svg" id="8"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -45,32 +47,34 @@ theme_override_constants/separation = 14
 [node name="Header" type="HBoxContainer" parent="Layout/Root"]
 layout_mode = 2
 theme_override_constants/separation = 12
+alignment = 1
 
 [node name="Brand" type="TextureRect" parent="Layout/Root/Header"]
 custom_minimum_size = Vector2(72, 72)
 layout_mode = 2
+size_flags_vertical = 4
 texture = ExtResource("6")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="TitleBlock" type="VBoxContainer" parent="Layout/Root/Header"]
+[node name="AppTitle" type="Label" parent="Layout/Root/Header"]
 layout_mode = 2
-theme_override_constants/separation = 0
-
-[node name="AppTitle" type="Label" parent="Layout/Root/Header/TitleBlock"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 56
 text = "Godot Hub"
-
-[node name="AppSubtitle" type="Label" parent="Layout/Root/Header/TitleBlock"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
-theme_override_font_sizes/font_size = 12
-text = "Quản lý song song nhiều phiên bản Godot"
+vertical_alignment = 1
 
 [node name="Spacer" type="Control" parent="Layout/Root/Header"]
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="GithubButton" type="Button" parent="Layout/Root/Header"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_vertical = 4
+focus_mode = 1
+tooltip_text = "GitHub"
+flat = true
+icon = ExtResource("8")
 
 [node name="HeaderLine" type="ColorRect" parent="Layout/Root"]
 custom_minimum_size = Vector2(0, 1)
@@ -80,12 +84,16 @@ color = Color(0.239216, 0.266667, 0.309804, 1)
 [node name="TabContainer" type="TabContainer" parent="Layout/Root"]
 layout_mode = 2
 size_flags_vertical = 3
-current_tab = 0
+current_tab = 1
 
 [node name="Versions" parent="Layout/Root/TabContainer" instance=ExtResource("3")]
+visible = false
 layout_mode = 2
 
 [node name="Projects" parent="Layout/Root/TabContainer" instance=ExtResource("4")]
+layout_mode = 2
+
+[node name="Settings" parent="Layout/Root/TabContainer" instance=ExtResource("7")]
 visible = false
 layout_mode = 2
 

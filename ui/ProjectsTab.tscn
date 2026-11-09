@@ -30,28 +30,20 @@ text = "Dự án Godot bạn đang quản lý"
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="AddButton" type="Button" parent="Header"]
-layout_mode = 2
-text = "+ Thêm project"
-
-[node name="Toolbar" type="HBoxContainer" parent="."]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="RemoveButton" type="Button" parent="Toolbar"]
-layout_mode = 2
-text = "Xóa"
-
-[node name="ToolbarSpacer" type="Control" parent="Toolbar"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="CountLabel" type="Label" parent="Toolbar"]
+[node name="CountLabel" type="Label" parent="Header"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
 theme_override_font_sizes/font_size = 12
 text = "0 project"
 vertical_alignment = 1
+
+[node name="RemoveButton" type="Button" parent="Header"]
+layout_mode = 2
+text = "Xóa"
+
+[node name="AddButton" type="Button" parent="Header"]
+layout_mode = 2
+text = "+ Thêm project"
 
 [node name="ListStack" type="PanelContainer" parent="."]
 custom_minimum_size = Vector2(0, 200)
@@ -109,3 +101,5 @@ size_flags_horizontal = 3
 [node name="LaunchButton" type="Button" parent="LaunchPanel/Content"]
 layout_mode = 2
 text = "Mở project"
+
+[node name="ContextMenu" type="PopupMenu" parent="."]

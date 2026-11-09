@@ -15,6 +15,7 @@ var _page_url := ""
 
 
 func _ready() -> void:
+	page_button.text = tr("COMMON_OPEN_PAGE")
 	standard_button.pressed.connect(_on_standard_pressed)
 	mono_button.pressed.connect(_on_mono_pressed)
 	page_button.pressed.connect(_on_page_pressed)
@@ -40,13 +41,13 @@ func set_buttons_enabled(enabled: bool) -> void:
 
 func _describe() -> String:
 	var platform := str(_standard.get("platform", _mono.get("platform", "")))
-	var availability := "Standard và Mono"
+	var availability := tr("AVAIL_BOTH")
 	if _standard.is_empty() and _mono.is_empty():
-		availability = "Không có bản phù hợp"
+		availability = tr("AVAIL_NONE")
 	elif _standard.is_empty():
-		availability = "Chỉ Mono"
+		availability = tr("AVAIL_MONO_ONLY")
 	elif _mono.is_empty():
-		availability = "Chỉ Standard"
+		availability = tr("AVAIL_STANDARD_ONLY")
 	if platform.is_empty():
 		return availability
 	return "%s · %s" % [platform, availability]

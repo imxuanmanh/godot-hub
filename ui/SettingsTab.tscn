@@ -1,0 +1,140 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/SettingsTab.gd" id="1"]
+
+[node name="SettingsTab" type="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+script = ExtResource("1")
+
+[node name="Header" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleBlock" type="VBoxContainer" parent="Header"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Title" type="Label" parent="Header/TitleBlock"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Cài đặt"
+
+[node name="Subtitle" type="Label" parent="Header/TitleBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 12
+text = "Tùy chỉnh Godot Hub"
+
+[node name="Spacer" type="Control" parent="Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Body" type="HBoxContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="Sidebar" type="PanelContainer" parent="Body"]
+custom_minimum_size = Vector2(190, 0)
+layout_mode = 2
+
+[node name="SidebarMargin" type="MarginContainer" parent="Body/Sidebar"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Nav" type="VBoxContainer" parent="Body/Sidebar/SidebarMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="GeneralButton" type="Button" parent="Body/Sidebar/SidebarMargin/Nav"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+toggle_mode = true
+alignment = 0
+text = "Chung"
+
+[node name="EnginesButton" type="Button" parent="Body/Sidebar/SidebarMargin/Nav"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+toggle_mode = true
+alignment = 0
+text = "Phiên bản"
+
+[node name="ProjectsButton" type="Button" parent="Body/Sidebar/SidebarMargin/Nav"]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+toggle_mode = true
+alignment = 0
+text = "Project"
+
+[node name="NavSpacer" type="Control" parent="Body/Sidebar/SidebarMargin/Nav"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Content" type="PanelContainer" parent="Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ContentMargin" type="MarginContainer" parent="Body/Content"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="Panels" type="VBoxContainer" parent="Body/Content/ContentMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="General" type="VBoxContainer" parent="Body/Content/ContentMargin/Panels"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="LanguageRow" type="HBoxContainer" parent="Body/Content/ContentMargin/Panels/General"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="LanguageLabel" type="Label" parent="Body/Content/ContentMargin/Panels/General/LanguageRow"]
+layout_mode = 2
+text = "Ngôn ngữ"
+
+[node name="LanguageSelector" type="OptionButton" parent="Body/Content/ContentMargin/Panels/General/LanguageRow"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+
+[node name="LanguageHint" type="Label" parent="Body/Content/ContentMargin/Panels/General"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 12
+text = "Chọn ngôn ngữ hiển thị của ứng dụng."
+autowrap_mode = 2
+
+[node name="Engines" type="VBoxContainer" parent="Body/Content/ContentMargin/Panels"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Placeholder" type="Label" parent="Body/Content/ContentMargin/Panels/Engines"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 12
+text = "Tùy chọn cho phiên bản Godot sẽ được bổ sung sau."
+autowrap_mode = 2
+
+[node name="Projects" type="VBoxContainer" parent="Body/Content/ContentMargin/Panels"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Placeholder" type="Label" parent="Body/Content/ContentMargin/Panels/Projects"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 12
+text = "Tùy chọn cho project sẽ được bổ sung sau."
+autowrap_mode = 2
