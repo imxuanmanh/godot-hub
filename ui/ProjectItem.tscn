@@ -156,6 +156,25 @@ text = "D:/Projects/MyGame"
 text_overrun_behavior = 3
 clip_text = true
 
+[node name="TagsLabel" type="Label" parent="Content/Row/Info"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.498039, 0.709804, 0.862745, 1)
+theme_override_font_sizes/font_size = 11
+text = "#tag"
+text_overrun_behavior = 3
+clip_text = true
+
+[node name="PinLabel" type="Label" parent="Content/Row"]
+visible = false
+custom_minimum_size = Vector2(18, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.913725, 0.760784, 0.352941, 1)
+theme_override_font_sizes/font_size = 16
+text = "★"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="Mark" type="Label" parent="Content/Row"]
 visible = false
 custom_minimum_size = Vector2(18, 0)

@@ -15,9 +15,9 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="Godot Hub"
-config/icon="res://assets/godot-hub-logo.svg"
 run/main_scene="res://Main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
+config/icon="res://assets/godot-hub-logo.svg"
 
 [godot_hub]
 
@@ -26,7 +26,6 @@ links/repository="https://github.com/imxuanmanh/godot-hub"
 [internationalization]
 
 locale/translations=PackedStringArray("res://locales/translations.vi.translation", "res://locales/translations.en.translation")
-locale/fallback="en"
 
 [rendering]
 

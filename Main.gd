@@ -11,7 +11,7 @@ static var _restore_tab: int = -1
 
 # versions: [{ name: String, path: String, is_mono: bool, is_default: bool }]
 var versions: Array = []
-# projects: [{ name: String, project_dir: String, engine_index: int }]
+# projects: [{ name: String, project_dir: String, engine_index: int, pinned: bool, tags: Array[String] }]
 var projects: Array = []
 var language: String = ""
 var _repository_url := ""
@@ -21,6 +21,7 @@ var _repository_url := ""
 @onready var projects_tab: ProjectsTab = $Layout/Root/TabContainer/Projects
 @onready var settings_tab: SettingsTab = $Layout/Root/TabContainer/Settings
 @onready var add_version_dialog: AddVersionDialog = $AddVersionDialog
+@onready var project_tags_dialog: ProjectTagsDialog = $ProjectTagsDialog
 @onready var add_project_dialog: FileDialog = $AddProjectDialog
 @onready var github_button: Button = $Layout/Root/Header/GithubButton
 
@@ -54,6 +55,9 @@ func _ready() -> void:
 	projects_tab.remove_requested.connect(_on_remove_project_requested)
 	projects_tab.launch_requested.connect(_on_launch_requested)
 	projects_tab.engine_changed.connect(_on_engine_changed)
+	projects_tab.pin_toggled.connect(_on_pin_toggled)
+	projects_tab.tags_requested.connect(_on_project_tags_requested)
+	project_tags_dialog.tags_submitted.connect(_on_project_tags_submitted)
 
 	settings_tab.language_changed.connect(_on_language_changed)
 
@@ -152,6 +156,8 @@ func _on_project_file_selected(path: String) -> void:
 		"name": _read_project_name(path),
 		"project_dir": path.get_base_dir(),
 		"engine_index": default_engine_index,
+		"pinned": false,
+		"tags": [],
 	})
 	_save_data()
 	_refresh_projects()
@@ -201,6 +207,32 @@ func _on_engine_changed(project_index: int, engine_index: int) -> void:
 	_save_data()
 
 
+func _on_pin_toggled(project_index: int) -> void:
+	if project_index < 0 or project_index >= projects.size():
+		return
+	projects[project_index].pinned = not bool(projects[project_index].get("pinned", false))
+	_save_data()
+	_refresh_projects()
+
+
+func _on_project_tags_requested(project_index: int) -> void:
+	if project_index < 0 or project_index >= projects.size():
+		return
+	project_tags_dialog.open_dialog(
+		project_index,
+		str(projects[project_index].name),
+		projects[project_index].get("tags", [])
+	)
+
+
+func _on_project_tags_submitted(project_index: int, tags: Array[String]) -> void:
+	if project_index < 0 or project_index >= projects.size():
+		return
+	projects[project_index].tags = tags
+	_save_data()
+	_refresh_projects()
+
+
 # ---------------- PERSISTENCE ----------------
 
 func _save_data() -> void:
@@ -226,6 +258,23 @@ func _load_data() -> void:
 	if typeof(parsed) == TYPE_DICTIONARY:
 		versions = parsed.get("versions", [])
 		projects = parsed.get("projects", [])
+		_normalize_projects()
 		var saved_language := str(parsed.get("language", ""))
 		if AppLanguages.is_supported(saved_language):
 			language = saved_language
+
+
+func _normalize_projects() -> void:
+	var normalized: Array = []
+	for project in projects:
+		if typeof(project) != TYPE_DICTIONARY:
+			continue
+		project["pinned"] = bool(project.get("pinned", false))
+		var tags: Array[String] = []
+		for tag in project.get("tags", []):
+			var text := str(tag).strip_edges()
+			if not text.is_empty() and not tags.has(text):
+				tags.append(text)
+		project["tags"] = tags
+		normalized.append(project)
+	projects = normalized

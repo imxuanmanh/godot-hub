@@ -5,12 +5,16 @@ signal add_requested
 signal remove_requested(index: int)
 signal launch_requested(project_index: int, engine_index: int)
 signal engine_changed(project_index: int, engine_index: int)
+signal pin_toggled(project_index: int)
+signal tags_requested(project_index: int)
 
 const ITEM_SCENE := preload("res://ui/ProjectItem.tscn")
 
 var _projects: Array = []
 var _versions: Array = []
-var _items: Array = []
+var _items: Array[ProjectItem] = []
+var _visible_indices: Array[int] = []
+var _search_query := ""
 var _selected_index := -1
 var _context_index := -1
 var _button_group := ButtonGroup.new()
@@ -19,6 +23,7 @@ var _version_regex := RegEx.new()
 @onready var items_container: VBoxContainer = $ListStack/Stack/Scroll/Items
 @onready var empty_state: Label = $ListStack/Stack/EmptyState
 @onready var count_label: Label = $Header/CountLabel
+@onready var search_edit: LineEdit = $Header/SearchEdit
 @onready var remove_button: Button = $Header/RemoveButton
 @onready var engine_selector: OptionButton = $LaunchPanel/Content/EngineSelector
 @onready var engine_label: Label = $LaunchPanel/Content/EngineLabel
@@ -35,15 +40,17 @@ func _ready() -> void:
 	remove_button.text = tr("COMMON_REMOVE")
 	engine_label.text = tr("PROJECTS_ENGINE_LABEL")
 	launch_button.text = tr("PROJECTS_LAUNCH")
-	empty_state.text = tr("PROJECTS_EMPTY")
-	count_label.text = tr("PROJECTS_COUNT") % _projects.size()
+	search_edit.placeholder_text = tr("PROJECTS_SEARCH_PLACEHOLDER")
 
 	add_button.pressed.connect(_on_add_pressed)
 	remove_button.pressed.connect(_emit_remove)
 	launch_button.pressed.connect(_emit_launch)
 	engine_selector.item_selected.connect(_on_engine_selected)
+	search_edit.text_changed.connect(_on_search_changed)
 	context_menu.id_pressed.connect(_on_context_menu_pressed)
 	_update_actions()
+	_update_count()
+	_update_empty_state()
 
 
 func set_versions(new_versions: Array) -> void:
@@ -61,7 +68,7 @@ func set_versions(new_versions: Array) -> void:
 func set_projects(new_projects: Array) -> void:
 	_projects = new_projects
 	_rebuild_items()
-	count_label.text = tr("PROJECTS_COUNT") % _projects.size()
+	_update_count()
 	_update_actions()
 	_update_empty_state()
 
@@ -71,14 +78,15 @@ func get_selected_index() -> int:
 
 
 func _rebuild_items() -> void:
+	var keep := _selected_index
 	for child in items_container.get_children():
 		items_container.remove_child(child)
 		child.queue_free()
 	_items.clear()
-	_selected_index = -1
+	_visible_indices = ProjectFilter.visible_indices(_projects, _search_query)
 	_button_group = ButtonGroup.new()
 	_button_group.pressed.connect(_on_item_pressed)
-	for i in _projects.size():
+	for i in _visible_indices:
 		var item: ProjectItem = ITEM_SCENE.instantiate()
 		items_container.add_child(item)
 		item.button_group = _button_group
@@ -87,6 +95,16 @@ func _rebuild_items() -> void:
 		item.double_clicked.connect(_on_item_double_clicked)
 		item.context_requested.connect(_on_item_context_requested)
 		_items.append(item)
+	_selected_index = -1
+	if keep >= 0 and _item_for(keep) != null:
+		_select_item(keep)
+
+
+func _item_for(project_index: int) -> ProjectItem:
+	for item in _items:
+		if item.index == project_index:
+			return item
+	return null
 
 
 func _on_item_pressed(button: BaseButton) -> void:
@@ -99,10 +117,11 @@ func _on_item_pressed(button: BaseButton) -> void:
 
 
 func _select_item(index: int) -> void:
-	if index < 0 or index >= _items.size():
+	var item := _item_for(index)
+	if item == null:
 		return
 	_selected_index = index
-	_items[index].button_pressed = true
+	item.button_pressed = true
 	_refresh_engine_selection()
 	_update_actions()
 
@@ -126,8 +145,10 @@ func _on_item_context_requested(index: int, screen_position: Vector2) -> void:
 	_context_index = index
 	context_menu.clear()
 	context_menu.add_item(tr("PROJECTS_LAUNCH"), 0)
+	context_menu.add_item(tr("PROJECTS_UNPIN") if _is_pinned(index) else tr("PROJECTS_PIN"), 1)
+	context_menu.add_item(tr("PROJECTS_EDIT_TAGS"), 2)
 	context_menu.add_separator()
-	context_menu.add_item(tr("COMMON_REMOVE"), 1)
+	context_menu.add_item(tr("COMMON_REMOVE"), 3)
 	context_menu.set_item_disabled(0, _versions.is_empty())
 	context_menu.position = Vector2i(screen_position)
 	context_menu.popup()
@@ -141,11 +162,22 @@ func _on_context_menu_pressed(id: int) -> void:
 	if id == 0:
 		_launch_project(index)
 	elif id == 1:
+		pin_toggled.emit(index)
+	elif id == 2:
+		tags_requested.emit(index)
+	elif id == 3:
 		remove_requested.emit(index)
 
 
 func _on_add_pressed() -> void:
 	add_requested.emit()
+
+
+func _on_search_changed(text: String) -> void:
+	_search_query = text
+	_rebuild_items()
+	_update_count()
+	_update_empty_state()
 
 
 func _refresh_engine_selection() -> void:
@@ -157,10 +189,11 @@ func _refresh_engine_selection() -> void:
 
 
 func _refresh_item_engine() -> void:
-	if _selected_index < 0 or _selected_index >= _items.size():
+	var item := _item_for(_selected_index)
+	if item == null:
 		return
 	var engine_index := int(_projects[_selected_index].engine_index)
-	_items[_selected_index].set_engine(_engine_display(engine_index), _engine_is_mono(engine_index))
+	item.set_engine(_engine_display(engine_index), _engine_is_mono(engine_index))
 
 
 func _on_engine_selected(index: int) -> void:
@@ -199,11 +232,28 @@ func _engine_is_mono(engine_index: int) -> bool:
 	return bool(_versions[engine_index].is_mono)
 
 
+func _is_pinned(index: int) -> bool:
+	if index < 0 or index >= _projects.size():
+		return false
+	return bool(_projects[index].get("pinned", false))
+
+
 func _update_actions() -> void:
 	var has_project := _selected_index >= 0 and _selected_index < _projects.size()
 	remove_button.disabled = not has_project
 	launch_button.disabled = not has_project or _versions.is_empty()
 
 
+func _update_count() -> void:
+	if _search_query.strip_edges().is_empty():
+		count_label.text = tr("PROJECTS_COUNT") % _projects.size()
+	else:
+		count_label.text = tr("PROJECTS_COUNT_FILTERED") % [_visible_indices.size(), _projects.size()]
+
+
 func _update_empty_state() -> void:
-	empty_state.visible = _projects.is_empty()
+	if _visible_indices.is_empty() and not _projects.is_empty():
+		empty_state.text = tr("PROJECTS_NO_RESULTS")
+	else:
+		empty_state.text = tr("PROJECTS_EMPTY")
+	empty_state.visible = _visible_indices.is_empty()

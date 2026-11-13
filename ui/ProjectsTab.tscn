@@ -30,6 +30,12 @@ text = "Dự án Godot bạn đang quản lý"
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="SearchEdit" type="LineEdit" parent="Header"]
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+placeholder_text = "Tìm theo tên hoặc tag…"
+clear_button_enabled = true
+
 [node name="CountLabel" type="Label" parent="Header"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)

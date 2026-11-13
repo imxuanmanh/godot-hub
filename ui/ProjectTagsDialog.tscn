@@ -1,0 +1,68 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://ui/theme/GodotHubTheme.tres" id="1"]
+[ext_resource type="Script" path="res://ui/ProjectTagsDialog.gd" id="2"]
+
+[node name="ProjectTagsDialog" type="Window"]
+title = "Project tags"
+initial_position = 2
+size = Vector2i(460, 240)
+visible = false
+exclusive = true
+transient = true
+theme = ExtResource("1")
+script = ExtResource("2")
+
+[node name="Content" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
+
+[node name="Root" type="VBoxContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="Content/Root"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Edit project tags"
+
+[node name="ProjectLabel" type="Label" parent="Content/Root"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 12
+text = "Project"
+
+[node name="HintLabel" type="Label" parent="Content/Root"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 12
+text = "Separate tags with commas."
+autowrap_mode = 2
+
+[node name="TagsEdit" type="LineEdit" parent="Content/Root"]
+layout_mode = 2
+placeholder_text = "game, jam, client"
+
+[node name="Footer" type="HBoxContainer" parent="Content/Root"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="FooterSpacer" type="Control" parent="Content/Root/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CancelButton" type="Button" parent="Content/Root/Footer"]
+layout_mode = 2
+text = "Cancel"
+
+[node name="SaveButton" type="Button" parent="Content/Root/Footer"]
+layout_mode = 2
+text = "Save"

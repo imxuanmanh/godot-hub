@@ -15,6 +15,8 @@ var _suppress_release := false
 @onready var engine_badge: PanelContainer = $Content/Row/Info/NameRow/EngineBadge
 @onready var engine_label: Label = $Content/Row/Info/NameRow/EngineBadge/EngineLabel
 @onready var path_label: Label = $Content/Row/Info/PathLabel
+@onready var tags_label: Label = $Content/Row/Info/TagsLabel
+@onready var pin_label: Label = $Content/Row/PinLabel
 @onready var mark: Label = $Content/Row/Mark
 
 
@@ -47,8 +49,20 @@ func setup(project: Dictionary, item_index: int, engine_text: String, is_mono: b
 	index = item_index
 	name_label.text = str(project.name)
 	path_label.text = str(project.project_dir)
+	pin_label.visible = bool(project.get("pinned", false))
+	_set_tags(project.get("tags", []))
 	set_engine(engine_text, is_mono)
 	tooltip_text = str(project.project_dir)
+
+
+func _set_tags(tags: Array) -> void:
+	var parts: Array[String] = []
+	for tag in tags:
+		var text := str(tag).strip_edges()
+		if not text.is_empty():
+			parts.append("#" + text)
+	tags_label.text = "  ".join(parts)
+	tags_label.visible = not parts.is_empty()
 
 
 func set_engine(engine_text: String, is_mono: bool) -> void:

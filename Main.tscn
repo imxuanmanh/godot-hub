@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://bqx6yv0h8n8k1"]
+[gd_scene load_steps=10 format=3 uid="uid://bqx6yv0h8n8k1"]
 
 [ext_resource type="Script" path="res://Main.gd" id="1"]
 [ext_resource type="Theme" path="res://ui/theme/GodotHubTheme.tres" id="2"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://ikbs7q0mubfu" path="res://assets/godot-hub-logo.svg" id="6"]
 [ext_resource type="PackedScene" path="res://ui/SettingsTab.tscn" id="7"]
 [ext_resource type="Texture2D" path="res://assets/github-mark.svg" id="8"]
+[ext_resource type="PackedScene" path="res://ui/ProjectTagsDialog.tscn" id="9"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -98,6 +99,8 @@ visible = false
 layout_mode = 2
 
 [node name="AddVersionDialog" parent="." instance=ExtResource("5")]
+
+[node name="ProjectTagsDialog" parent="." instance=ExtResource("9")]
 
 [node name="AddProjectDialog" type="FileDialog" parent="."]
 title = "Chọn project.godot"
