@@ -70,7 +70,7 @@ func snapshot() -> Dictionary:
 static func migrate(data: Dictionary) -> Dictionary:
 	var schema: Variant = data.get("schema_version", 0)
 	if not (schema is int or schema is float) or (schema != 0 and schema != SCHEMA):
-		return {"ok": false, "error": "EDITOR_SETTINGS_SCHEMA_ERROR", "detail": ""}
+		return {"ok": false, "error": "DATA_SCHEMA_ERROR", "detail": ""}
 	var value: Dictionary = data.duplicate(true)
 	if not value.get("projects", []) is Array or not value.get("versions", []) is Array:
 		return SafeFile.failure(PATH, ERR_INVALID_DATA)
@@ -90,7 +90,7 @@ static func migrate(data: Dictionary) -> Dictionary:
 		if not project.has("id"):
 			project["id"] = ProjectIdentity.create()
 		if not project.id is String or not ProjectIdentity.is_valid(project.id) or ids.has(project.id):
-			return {"ok": false, "error": "EDITOR_SETTINGS_INVALID_ID", "detail": str(project.id)}
+			return {"ok": false, "error": "DATA_INVALID_ID", "detail": str(project.id)}
 		ids[project.id] = true
 		project["engine_index"] = int(project.get("engine_index", 0))
 		project["pinned"] = bool(project.get("pinned", false))

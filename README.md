@@ -36,7 +36,6 @@ Current patch: **0.1.1**.
 - **Context menus** — right-click a project or version card for quick actions.
 - **Themed UI** — a consistent dark theme powered by a single `Theme` resource.
 - **Localization** — Vietnamese and English out of the box, switchable at runtime.
-- **Default GDScript editor and project overrides** — start with Built-in, choose an external editor globally or pin individual fields per project. The Windows backend is verified with Godot 4.6.3 .NET and 4.7.1 Standard.
 
 ## Requirements
 
@@ -63,7 +62,7 @@ git clone https://github.com/imxuanmanh/godot-hub.git
 3. Select the **Windows Desktop** preset (or add a preset for your platform).
 4. Export to `Godot Hub.exe` in the project root.
 
-The current preset embeds the PCK in the executable. Keep `config/*.cfg` and the editor bootstrap text included when changing export filters.
+The current preset embeds the PCK in the executable.
 
 ## Usage
 
@@ -83,15 +82,6 @@ The current preset embeds the PCK in the executable. Keep `config/*.cfg` and the
 - **Double-click** a project to open it with its assigned engine.
 - **Right-click** a card to open, or remove the project from the list.
 
-### GDScript editor settings
-
-- **Settings → General → Default editor settings** changes the shared default. Its initial value is Built-in, independently of the default engine.
-- **Projects → Editor settings…** opens the same form for one project. Check **Override** to pin a field; uncheck it to inherit the current default. **Use defaults for all fields** removes the three managed overrides.
-- External editors use an executable picker and optional arguments. For VSCode, choose its executable and override arguments with `{project} --goto {file}:{line}:{col}` when needed.
-- Changes apply on the next editor launch. Windows launches use private game data, cache and export-template directories. Existing global game saves/templates are not copied. VSCode retains its original user profile.
-
-See [editor settings and platform limits](docs/editor_settings.md) and the [verification report](docs/editor_settings_verification.md).
-
 ## Data and storage
 
 All app data is stored under the Godot `user://` directory:
@@ -108,11 +98,8 @@ Key files:
 - `versions/` — extracted engine builds.
 - `downloads/` — temporary download files.
 - `godot_manifest_cache.json` — cached GitHub release manifest.
-- `settings.cfg` — shared editor defaults, schema 1.
-- `projects/<stable-id>/settings.override.cfg` — only explicitly overridden project fields.
-- `runtime/<stable-id>/` — derived native settings, bootstrap project, private data/cache and the active editor PID.
 
-The library JSON now has schema 1 and stable project IDs; migration preserves existing fields. Writes retain a `.bak` recovery copy. Removing a project from the library leaves its override/runtime directories intact.
+The library JSON has schema 1 and stable project IDs; migration preserves existing fields. Writes retain a `.bak` recovery copy.
 
 Deleting this folder resets the app to a clean state. Your actual Godot projects are never modified.
 
@@ -137,7 +124,6 @@ godot-hub/
 - [ ] Automatic update checks for installed engines.
 - [ ] Project templates.
 - [ ] Persistent options for engine and project settings.
-- [x] Default GDScript editor with sparse project overrides (verified Windows builds).
 - [ ] Automated tests for pure logic (version parsing, project metadata).
 - [ ] Additional export targets and installers.
 

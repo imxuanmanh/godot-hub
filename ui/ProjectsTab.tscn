@@ -1,7 +1,6 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://ui/ProjectsTab.gd" id="1"]
-[ext_resource type="PackedScene" path="res://ui/project_launch_panel.tscn" id="2"]
 
 [node name="ProjectsTab" type="VBoxContainer"]
 layout_mode = 2
@@ -90,7 +89,23 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 
-[node name="LaunchPanel" parent="." instance=ExtResource("2")]
+[node name="LaunchPanel" type="PanelContainer" parent="."]
 layout_mode = 2
+
+[node name="Content" type="HBoxContainer" parent="LaunchPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="EngineLabel" type="Label" parent="LaunchPanel/Content"]
+layout_mode = 2
+text = "Phiên bản Godot"
+
+[node name="EngineSelector" type="OptionButton" parent="LaunchPanel/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LaunchButton" type="Button" parent="LaunchPanel/Content"]
+layout_mode = 2
+text = "Mở project"
 
 [node name="ContextMenu" type="PopupMenu" parent="."]

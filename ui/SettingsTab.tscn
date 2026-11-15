@@ -1,29 +1,6 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://ui/SettingsTab.gd" id="1"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_check_blue"]
-content_margin_left = 12.0
-content_margin_top = 7.0
-content_margin_right = 36.0
-content_margin_bottom = 7.0
-bg_color = Color(0.227451, 0.45098, 0.619608, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.278431, 0.54902, 0.74902, 1)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_info"]
-bg_color = Color(0, 0, 0, 0.25)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
 
 [node name="SettingsTab" type="VBoxContainer"]
 layout_mode = 2
@@ -138,11 +115,6 @@ theme_override_font_sizes/font_size = 12
 text = "Chọn ngôn ngữ hiển thị của ứng dụng."
 autowrap_mode = 2
 
-[node name="DefaultEditorButton" type="Button" parent="Body/Content/ContentMargin/Panels/General"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 0
-
 [node name="Engines" type="VBoxContainer" parent="Body/Content/ContentMargin/Panels"]
 visible = false
 layout_mode = 2
@@ -162,41 +134,18 @@ theme_override_constants/separation = 10
 
 [node name="CloseOnLaunchCheck" type="CheckButton" parent="Body/Content/ContentMargin/Panels/Projects"]
 layout_mode = 2
-size_flags_horizontal = 0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_styles/hover = SubResource("StyleBoxFlat_check_blue")
-theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_check_blue")
-theme_override_styles/normal = SubResource("StyleBoxFlat_check_blue")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_check_blue")
 text = "Đóng Godot Hub sau khi mở project"
 
-[node name="CloseOnLaunchInfo" type="Button" parent="Body/Content/ContentMargin/Panels/Projects/CloseOnLaunchCheck"]
-custom_minimum_size = Vector2(20, 20)
-layout_mode = 1
-anchors_preset = 6
-anchor_left = 1.0
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -30.0
-offset_top = -10.0
-offset_right = -10.0
-offset_bottom = 10.0
-grow_horizontal = 0
-grow_vertical = 2
-focus_mode = 0
-tooltip_text = "Hub sẽ tự thoát sau khi khởi chạy project bằng Godot."
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+[node name="CloseOnLaunchHint" type="Label" parent="Body/Content/ContentMargin/Panels/Projects"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
 theme_override_font_sizes/font_size = 12
-theme_override_styles/normal = SubResource("StyleBoxFlat_info")
-theme_override_styles/hover = SubResource("StyleBoxFlat_info")
-theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_info")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_info")
-text = "!"
+text = "Hub sẽ tự thoát sau khi khởi chạy project bằng Godot."
+autowrap_mode = 2
+
+[node name="Placeholder" type="Label" parent="Body/Content/ContentMargin/Panels/Projects"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 12
+text = "Các tùy chọn project khác sẽ được bổ sung sau."
+autowrap_mode = 2

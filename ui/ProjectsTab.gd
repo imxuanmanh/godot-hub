@@ -7,7 +7,6 @@ signal launch_requested(project_index: int, engine_index: int)
 signal engine_changed(project_index: int, engine_index: int)
 signal pin_toggled(project_index: int)
 signal tags_requested(project_index: int)
-signal editor_settings_requested(project_index: int)
 
 const ITEM_SCENE := preload("res://ui/ProjectItem.tscn")
 
@@ -26,7 +25,9 @@ var _version_regex := RegEx.new()
 @onready var count_label: Label = $Header/CountLabel
 @onready var search_edit: LineEdit = $Header/SearchEdit
 @onready var remove_button: Button = $Header/RemoveButton
-@onready var launch_panel: ProjectLaunchPanel = $LaunchPanel
+@onready var engine_selector: OptionButton = $LaunchPanel/Content/EngineSelector
+@onready var engine_label: Label = $LaunchPanel/Content/EngineLabel
+@onready var launch_button: Button = $LaunchPanel/Content/LaunchButton
 @onready var add_button: Button = $Header/AddButton
 @onready var context_menu: PopupMenu = $ContextMenu
 
@@ -37,13 +38,14 @@ func _ready() -> void:
 	$Header/TitleBlock/Subtitle.text = tr("PROJECTS_SUBTITLE")
 	add_button.text = tr("PROJECTS_ADD")
 	remove_button.text = tr("COMMON_REMOVE")
+	engine_label.text = tr("PROJECTS_ENGINE_LABEL")
+	launch_button.text = tr("PROJECTS_LAUNCH")
 	search_edit.placeholder_text = tr("PROJECTS_SEARCH_PLACEHOLDER")
 
 	add_button.pressed.connect(_on_add_pressed)
 	remove_button.pressed.connect(_emit_remove)
-	launch_panel.launch_requested.connect(_emit_launch)
-	launch_panel.engine_changed.connect(_on_engine_selected)
-	launch_panel.settings_requested.connect(func() -> void: editor_settings_requested.emit(_selected_index))
+	launch_button.pressed.connect(_emit_launch)
+	engine_selector.item_selected.connect(_on_engine_selected)
 	search_edit.text_changed.connect(_on_search_changed)
 	context_menu.id_pressed.connect(_on_context_menu_pressed)
 	_update_actions()
@@ -53,7 +55,11 @@ func _ready() -> void:
 
 func set_versions(new_versions: Array) -> void:
 	_versions = new_versions
-	launch_panel.set_versions(_versions)
+	engine_selector.clear()
+	for v in _versions:
+		var tag := " [Mono]" if v.is_mono else " [Standard]"
+		engine_selector.add_item(v.name + tag)
+	engine_selector.disabled = _versions.is_empty()
 	_refresh_engine_selection()
 	_refresh_item_engine()
 	_update_actions()
@@ -69,10 +75,6 @@ func set_projects(new_projects: Array) -> void:
 
 func get_selected_index() -> int:
 	return _selected_index
-
-
-func set_launch_busy(busy: bool) -> void:
-	launch_panel.set_busy(busy)
 
 
 func _rebuild_items() -> void:
@@ -130,7 +132,7 @@ func _on_item_double_clicked(index: int) -> void:
 
 
 func _launch_project(index: int) -> void:
-	if launch_panel.busy or index < 0 or index >= _projects.size() or _versions.is_empty():
+	if index < 0 or index >= _projects.size() or _versions.is_empty():
 		return
 	var engine_index := int(_projects[index].engine_index)
 	if engine_index < 0 or engine_index >= _versions.size():
@@ -179,8 +181,11 @@ func _on_search_changed(text: String) -> void:
 
 
 func _refresh_engine_selection() -> void:
-	var selected: bool = _selected_index >= 0 and _selected_index < _projects.size()
-	launch_panel.set_selection(selected, int(_projects[_selected_index].engine_index) if selected else -1)
+	if _selected_index < 0 or _selected_index >= _projects.size():
+		return
+	var engine_index := int(_projects[_selected_index].engine_index)
+	if engine_index >= 0 and engine_index < engine_selector.item_count:
+		engine_selector.select(engine_index)
 
 
 func _refresh_item_engine() -> void:
@@ -205,7 +210,9 @@ func _emit_remove() -> void:
 
 
 func _emit_launch() -> void:
-	_launch_project(_selected_index)
+	var engine_index := engine_selector.get_selected()
+	if _selected_index >= 0 and engine_index >= 0:
+		launch_requested.emit(_selected_index, engine_index)
 
 
 func _engine_display(engine_index: int) -> String:
@@ -234,7 +241,7 @@ func _is_pinned(index: int) -> bool:
 func _update_actions() -> void:
 	var has_project := _selected_index >= 0 and _selected_index < _projects.size()
 	remove_button.disabled = not has_project
-	_refresh_engine_selection()
+	launch_button.disabled = not has_project or _versions.is_empty()
 
 
 func _update_count() -> void:

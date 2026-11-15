@@ -3,7 +3,6 @@ extends VBoxContainer
 
 signal language_changed(code: String)
 signal close_on_launch_changed(enabled: bool)
-signal editor_settings_requested
 
 var _language := AppLanguages.DEFAULT
 var _nav_buttons: Array[Button] = []
@@ -21,9 +20,9 @@ var _panels: Array[Control] = []
 @onready var language_selector: OptionButton = $Body/Content/ContentMargin/Panels/General/LanguageRow/LanguageSelector
 @onready var language_hint: Label = $Body/Content/ContentMargin/Panels/General/LanguageHint
 @onready var engines_placeholder: Label = $Body/Content/ContentMargin/Panels/Engines/Placeholder
+@onready var projects_placeholder: Label = $Body/Content/ContentMargin/Panels/Projects/Placeholder
 @onready var close_on_launch_check: CheckButton = $Body/Content/ContentMargin/Panels/Projects/CloseOnLaunchCheck
-@onready var close_on_launch_info: Button = $Body/Content/ContentMargin/Panels/Projects/CloseOnLaunchCheck/CloseOnLaunchInfo
-@onready var default_editor_button: Button = %DefaultEditorButton
+@onready var close_on_launch_hint: Label = $Body/Content/ContentMargin/Panels/Projects/CloseOnLaunchHint
 
 
 func _ready() -> void:
@@ -35,10 +34,9 @@ func _ready() -> void:
 	language_label.text = tr("SETTINGS_LANGUAGE_LABEL")
 	language_hint.text = tr("SETTINGS_LANGUAGE_HINT")
 	engines_placeholder.text = tr("SETTINGS_ENGINES_PLACEHOLDER")
+	projects_placeholder.text = tr("SETTINGS_PROJECTS_PLACEHOLDER")
 	close_on_launch_check.text = tr("SETTINGS_CLOSE_ON_LAUNCH_LABEL")
-	close_on_launch_info.tooltip_text = tr("SETTINGS_CLOSE_ON_LAUNCH_HINT")
-	default_editor_button.text = tr("EDITOR_SETTINGS_DEFAULT_TITLE")
-	default_editor_button.pressed.connect(func() -> void: editor_settings_requested.emit())
+	close_on_launch_hint.text = tr("SETTINGS_CLOSE_ON_LAUNCH_HINT")
 
 	_nav_buttons = [general_button, engines_button, projects_button]
 	_panels = [general_panel, engines_panel, projects_panel]
@@ -56,11 +54,6 @@ func _ready() -> void:
 
 func set_close_on_launch(enabled: bool) -> void:
 	close_on_launch_check.set_pressed_no_signal(enabled)
-
-
-func set_default_editor(choice: int) -> void:
-	var labels: Array[String] = ["EDITOR_SETTINGS_BUILTIN", "EDITOR_SETTINGS_EXTERNAL", "EDITOR_SETTINGS_SOURCE_NATIVE"]
-	default_editor_button.text = tr("EDITOR_SETTINGS_DEFAULT_TITLE") + " · " + tr(labels[choice])
 
 
 func set_language(code: String) -> void:

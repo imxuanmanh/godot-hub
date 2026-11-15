@@ -17,7 +17,6 @@ var close_on_launch: bool = false
 var _repository_url := ""
 var _data_repository: HubDataRepository = HubDataRepository.new()
 var _load_result: Dictionary = {}
-var _editor_settings: EditorSettingsFeature = EditorSettingsFeature.new()
 
 @onready var tab_container: TabContainer = $Layout/Root/TabContainer
 @onready var versions_tab: VersionsTab = $Layout/Root/TabContainer/Versions
@@ -66,11 +65,6 @@ func _ready() -> void:
 
 	settings_tab.language_changed.connect(_on_language_changed)
 	settings_tab.close_on_launch_changed.connect(_on_close_on_launch_changed)
-	_editor_settings.error_occurred.connect(_show_error)
-	_editor_settings.default_changed.connect(settings_tab.set_default_editor)
-	settings_tab.editor_settings_requested.connect(_editor_settings.open_default)
-	projects_tab.editor_settings_requested.connect(_on_project_editor_settings_requested)
-	add_child(_editor_settings)
 
 	_refresh_versions()
 	_refresh_projects()
@@ -215,18 +209,14 @@ func _on_launch_requested(project_index: int, engine_index: int) -> void:
 	projects[project_index].engine_index = engine_index
 	if not _save_data():
 		return
-	projects_tab.set_launch_busy(true)
-	var result: Dictionary = await _editor_settings.launch(projects[project_index].duplicate(true), versions[engine_index].duplicate(true))
-	projects_tab.set_launch_busy(false)
+	var result: Dictionary = ProcessService.spawn(
+		str(versions[engine_index].path),
+		PackedStringArray(["--path", str(projects[project_index].project_dir), "-e"])
+	)
 	if not result.ok:
 		_show_error(result)
 	elif close_on_launch and result.pid > 0:
 		get_tree().quit()
-
-
-func _on_project_editor_settings_requested(project_index: int) -> void:
-	if project_index >= 0 and project_index < projects.size():
-		_editor_settings.open_project(projects[project_index].id, projects[project_index].name)
 
 
 func _on_engine_changed(project_index: int, engine_index: int) -> void:

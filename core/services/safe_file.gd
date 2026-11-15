@@ -6,21 +6,6 @@ const TEMP_SUFFIX: String = ".tmp"
 const BACKUP_SUFFIX: String = ".bak"
 
 
-## Checks lexical containment and rejects existing symlinks and junctions.
-static func check_path(path: String, root: String) -> Dictionary:
-	var absolute: String = ProjectSettings.globalize_path(path).replace("\\", "/").simplify_path()
-	var base: String = ProjectSettings.globalize_path(root).replace("\\", "/").simplify_path().trim_suffix("/")
-	if not absolute.begins_with(base + "/"):
-		return failure(path, ERR_INVALID_PARAMETER)
-	var current: String = base
-	for part: String in absolute.trim_prefix(base + "/").split("/"):
-		var directory: DirAccess = DirAccess.open(current)
-		if directory != null and directory.is_link(part):
-			return failure(path, ERR_INVALID_PARAMETER)
-		current = current.path_join(part)
-	return {"ok": true, "path": absolute}
-
-
 ## Recovers a crash between backup and final rename before creating defaults.
 static func recover(path: String) -> Dictionary:
 	var directory: DirAccess = DirAccess.open(path.get_base_dir())
@@ -59,7 +44,7 @@ static func write_text(path: String, content: String) -> Dictionary:
 
 ## Returns a translated-error key with native filesystem diagnostics.
 static func failure(path: String, error: Error) -> Dictionary:
-	return {"ok": false, "error": "EDITOR_SETTINGS_FILE_ERROR", "detail": "%s (%s)" % [path, error_string(error)]}
+	return {"ok": false, "error": "DATA_FILE_ERROR", "detail": "%s (%s)" % [path, error_string(error)]}
 
 
 static func _replace(temporary: String, path: String) -> Dictionary:
