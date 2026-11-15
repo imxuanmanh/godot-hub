@@ -2,6 +2,7 @@ class_name SettingsTab
 extends VBoxContainer
 
 signal language_changed(code: String)
+signal close_on_launch_changed(enabled: bool)
 
 var _language := AppLanguages.DEFAULT
 var _nav_buttons: Array[Button] = []
@@ -20,6 +21,8 @@ var _panels: Array[Control] = []
 @onready var language_hint: Label = $Body/Content/ContentMargin/Panels/General/LanguageHint
 @onready var engines_placeholder: Label = $Body/Content/ContentMargin/Panels/Engines/Placeholder
 @onready var projects_placeholder: Label = $Body/Content/ContentMargin/Panels/Projects/Placeholder
+@onready var close_on_launch_check: CheckButton = $Body/Content/ContentMargin/Panels/Projects/CloseOnLaunchCheck
+@onready var close_on_launch_hint: Label = $Body/Content/ContentMargin/Panels/Projects/CloseOnLaunchHint
 
 
 func _ready() -> void:
@@ -32,6 +35,8 @@ func _ready() -> void:
 	language_hint.text = tr("SETTINGS_LANGUAGE_HINT")
 	engines_placeholder.text = tr("SETTINGS_ENGINES_PLACEHOLDER")
 	projects_placeholder.text = tr("SETTINGS_PROJECTS_PLACEHOLDER")
+	close_on_launch_check.text = tr("SETTINGS_CLOSE_ON_LAUNCH_LABEL")
+	close_on_launch_hint.text = tr("SETTINGS_CLOSE_ON_LAUNCH_HINT")
 
 	_nav_buttons = [general_button, engines_button, projects_button]
 	_panels = [general_panel, engines_panel, projects_panel]
@@ -41,9 +46,14 @@ func _ready() -> void:
 		button.button_group = group
 		button.toggled.connect(_on_nav_toggled.bind(i))
 
+	close_on_launch_check.toggled.connect(_on_close_on_launch_toggled)
 	_setup_language_selector()
 	general_button.button_pressed = true
 	_show_panel(0)
+
+
+func set_close_on_launch(enabled: bool) -> void:
+	close_on_launch_check.set_pressed_no_signal(enabled)
 
 
 func set_language(code: String) -> void:
@@ -65,6 +75,10 @@ func _on_language_selected(index: int) -> void:
 		return
 	_language = code
 	language_changed.emit(code)
+
+
+func _on_close_on_launch_toggled(enabled: bool) -> void:
+	close_on_launch_changed.emit(enabled)
 
 
 func _on_nav_toggled(pressed_state: bool, index: int) -> void:

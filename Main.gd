@@ -14,6 +14,7 @@ var versions: Array = []
 # projects: [{ name: String, project_dir: String, engine_index: int, pinned: bool, tags: Array[String] }]
 var projects: Array = []
 var language: String = ""
+var close_on_launch: bool = false
 var _repository_url := ""
 
 @onready var tab_container: TabContainer = $Layout/Root/TabContainer
@@ -39,6 +40,7 @@ func _ready() -> void:
 	tab_container.current_tab = _restore_tab if _restore_tab >= 0 else TAB_PROJECTS
 	_restore_tab = -1
 	settings_tab.set_language(language)
+	settings_tab.set_close_on_launch(close_on_launch)
 	_setup_github_button()
 
 	add_project_dialog.title = tr("PROJECT_DIALOG_TITLE")
@@ -60,6 +62,7 @@ func _ready() -> void:
 	project_tags_dialog.tags_submitted.connect(_on_project_tags_submitted)
 
 	settings_tab.language_changed.connect(_on_language_changed)
+	settings_tab.close_on_launch_changed.connect(_on_close_on_launch_changed)
 
 	_refresh_versions()
 	_refresh_projects()
@@ -75,6 +78,11 @@ func _on_language_changed(code: String) -> void:
 	_save_data()
 	TranslationServer.set_locale(language)
 	get_tree().reload_current_scene()
+
+
+func _on_close_on_launch_changed(enabled: bool) -> void:
+	close_on_launch = enabled
+	_save_data()
 
 
 func _setup_github_button() -> void:
@@ -194,10 +202,12 @@ func _on_launch_requested(project_index: int, engine_index: int) -> void:
 		return
 	projects[project_index].engine_index = engine_index
 	_save_data()
-	OS.create_process(
+	var pid := OS.create_process(
 		versions[engine_index].path,
 		["--path", projects[project_index].project_dir, "-e"]
 	)
+	if close_on_launch and pid > 0:
+		get_tree().quit()
 
 
 func _on_engine_changed(project_index: int, engine_index: int) -> void:
@@ -242,6 +252,7 @@ func _save_data() -> void:
 			"versions": versions,
 			"projects": projects,
 			"language": language,
+			"close_on_launch": close_on_launch,
 		}, "\t"))
 		f.close()
 
@@ -259,6 +270,7 @@ func _load_data() -> void:
 		versions = parsed.get("versions", [])
 		projects = parsed.get("projects", [])
 		_normalize_projects()
+		close_on_launch = bool(parsed.get("close_on_launch", false))
 		var saved_language := str(parsed.get("language", ""))
 		if AppLanguages.is_supported(saved_language):
 			language = saved_language

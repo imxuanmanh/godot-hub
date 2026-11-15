@@ -132,9 +132,20 @@ visible = false
 layout_mode = 2
 theme_override_constants/separation = 10
 
+[node name="CloseOnLaunchCheck" type="CheckButton" parent="Body/Content/ContentMargin/Panels/Projects"]
+layout_mode = 2
+text = "Đóng Godot Hub sau khi mở project"
+
+[node name="CloseOnLaunchHint" type="Label" parent="Body/Content/ContentMargin/Panels/Projects"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 12
+text = "Hub sẽ tự thoát sau khi khởi chạy project bằng Godot."
+autowrap_mode = 2
+
 [node name="Placeholder" type="Label" parent="Body/Content/ContentMargin/Panels/Projects"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
 theme_override_font_sizes/font_size = 12
-text = "Tùy chọn cho project sẽ được bổ sung sau."
+text = "Các tùy chọn project khác sẽ được bổ sung sau."
 autowrap_mode = 2
