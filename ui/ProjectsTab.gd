@@ -7,6 +7,7 @@ signal launch_requested(project_index: int, engine_index: int)
 signal engine_changed(project_index: int, engine_index: int)
 signal pin_toggled(project_index: int)
 signal tags_requested(project_index: int)
+signal editor_config_requested(project_index: int)
 
 const ITEM_SCENE := preload("res://ui/ProjectItem.tscn")
 
@@ -147,6 +148,7 @@ func _on_item_context_requested(index: int, screen_position: Vector2) -> void:
 	context_menu.add_item(tr("PROJECTS_LAUNCH"), 0)
 	context_menu.add_item(tr("PROJECTS_UNPIN") if _is_pinned(index) else tr("PROJECTS_PIN"), 1)
 	context_menu.add_item(tr("PROJECTS_EDIT_TAGS"), 2)
+	context_menu.add_item(tr("PROJECTS_EDITOR_CONFIG"), 4)
 	context_menu.add_separator()
 	context_menu.add_item(tr("COMMON_REMOVE"), 3)
 	context_menu.set_item_disabled(0, _versions.is_empty())
@@ -167,6 +169,8 @@ func _on_context_menu_pressed(id: int) -> void:
 		tags_requested.emit(index)
 	elif id == 3:
 		remove_requested.emit(index)
+	elif id == 4:
+		editor_config_requested.emit(index)
 
 
 func _on_add_pressed() -> void:

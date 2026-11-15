@@ -2,7 +2,8 @@ extends Control
 
 const TAB_VERSIONS: int = 0
 const TAB_PROJECTS: int = 1
-const TAB_SETTINGS: int = 2
+const TAB_EDITORS: int = 2
+const TAB_SETTINGS: int = 3
 const REPOSITORY_SETTING := "godot_hub/links/repository"
 
 # Keeps the active tab when the scene reloads after a language change.
@@ -17,13 +18,16 @@ var close_on_launch: bool = false
 var _repository_url := ""
 var _data_repository: HubDataRepository = HubDataRepository.new()
 var _load_result: Dictionary = {}
+var _editor_catalog: EditorCatalog = EditorCatalog.new()
 
 @onready var tab_container: TabContainer = $Layout/Root/TabContainer
 @onready var versions_tab: VersionsTab = $Layout/Root/TabContainer/Versions
 @onready var projects_tab: ProjectsTab = $Layout/Root/TabContainer/Projects
+@onready var editors_tab: EditorsTab = $Layout/Root/TabContainer/Editors
 @onready var settings_tab: SettingsTab = $Layout/Root/TabContainer/Settings
 @onready var add_version_dialog: AddVersionDialog = $AddVersionDialog
 @onready var project_tags_dialog: ProjectTagsDialog = $ProjectTagsDialog
+@onready var project_editor_dialog: ProjectEditorDialog = $ProjectEditorDialog
 @onready var add_project_dialog: FileDialog = $AddProjectDialog
 @onready var github_button: Button = $Layout/Root/Header/GithubButton
 @onready var error_dialog: AcceptDialog = $ErrorDialog
@@ -38,6 +42,7 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	tab_container.set_tab_title(TAB_VERSIONS, tr("TAB_VERSIONS"))
 	tab_container.set_tab_title(TAB_PROJECTS, tr("TAB_PROJECTS"))
+	tab_container.set_tab_title(TAB_EDITORS, tr("TAB_EDITORS"))
 	tab_container.set_tab_title(TAB_SETTINGS, tr("TAB_SETTINGS"))
 	tab_container.current_tab = _restore_tab if _restore_tab >= 0 else TAB_PROJECTS
 	_restore_tab = -1
@@ -61,7 +66,15 @@ func _ready() -> void:
 	projects_tab.engine_changed.connect(_on_engine_changed)
 	projects_tab.pin_toggled.connect(_on_pin_toggled)
 	projects_tab.tags_requested.connect(_on_project_tags_requested)
+	projects_tab.editor_config_requested.connect(_on_editor_config_requested)
 	project_tags_dialog.tags_submitted.connect(_on_project_tags_submitted)
+	project_editor_dialog.editor_saved.connect(_on_project_editor_saved)
+
+	var catalog_result: Dictionary = _editor_catalog.load_catalog()
+	editors_tab.setup(_editor_catalog)
+	editors_tab.error_occurred.connect(_show_error)
+	if not catalog_result.ok:
+		_show_error.call_deferred(catalog_result)
 
 	settings_tab.language_changed.connect(_on_language_changed)
 	settings_tab.close_on_launch_changed.connect(_on_close_on_launch_changed)
@@ -175,6 +188,17 @@ func _on_project_file_selected(path: String) -> void:
 	})
 	_save_data()
 	_refresh_projects()
+	_init_project_editor(path.get_base_dir())
+
+
+# An override already in project.godot is kept; otherwise built-in is pinned so Godot's global setting cannot leak in.
+func _init_project_editor(project_dir: String) -> void:
+	var config: Dictionary = EditorOverridesStore.load_overrides(project_dir)
+	if not config.ok or str(config.mode) != EditorOverridesStore.MODE_INHERIT:
+		return
+	var result: Dictionary = EditorOverridesStore.save_overrides(project_dir, EditorOverridesStore.MODE_BUILTIN, "", "")
+	if not result.ok:
+		_show_error(result)
 
 
 func _read_project_name(path: String) -> String:
@@ -217,6 +241,27 @@ func _on_launch_requested(project_index: int, engine_index: int) -> void:
 		_show_error(result)
 	elif close_on_launch and result.pid > 0:
 		get_tree().quit()
+
+
+func _on_editor_config_requested(project_index: int) -> void:
+	if project_index < 0 or project_index >= projects.size():
+		return
+	var project: Dictionary = projects[project_index]
+	var config: Dictionary = EditorOverridesStore.load_overrides(str(project.project_dir))
+	if not config.ok:
+		_show_error(config)
+		return
+	project_editor_dialog.open_dialog(project_index, str(project.name), config, _editor_catalog.list())
+
+
+func _on_project_editor_saved(project_index: int, mode: String, path: String, flags: String) -> void:
+	if project_index < 0 or project_index >= projects.size():
+		return
+	var result: Dictionary = EditorOverridesStore.save_overrides(
+		str(projects[project_index].project_dir), mode, path, flags
+	)
+	if not result.ok:
+		_show_error(result)
 
 
 func _on_engine_changed(project_index: int, engine_index: int) -> void:

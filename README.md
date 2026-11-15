@@ -33,6 +33,8 @@ Current patch: **0.1.1**.
 - **Project library** — import projects from `project.godot`, rename, open, and remove them from a single list.
 - **Per-project engine binding** — each project remembers its assigned engine across restarts.
 - **Fast launch** — select a project and press **Open project**, or simply **double-click** it.
+- **Editor catalog** — register the script editors installed on your machine (VSCode, Rider, …) once in the **Editors** tab.
+- **Per-project script editor** — pick Godot built-in or a catalog editor per project via Godot's own `[editor_overrides]`.
 - **Context menus** — right-click a project or version card for quick actions.
 - **Themed UI** — a consistent dark theme powered by a single `Theme` resource.
 - **Localization** — Vietnamese and English out of the box, switchable at runtime.
@@ -80,7 +82,11 @@ The current preset embeds the PCK in the executable.
 - **+ Add project** — select a project's `project.godot` file.
 - Select a project, choose an engine from the **Godot version** dropdown, then click **Open project**.
 - **Double-click** a project to open it with its assigned engine.
-- **Right-click** a card to open, or remove the project from the list.
+- **Right-click** a card to open, configure the script editor, or remove the project.
+- **Editors tab** — add, edit (double-click) or remove script editors: a name, the executable and flags (`{project} {file} {line} {col}`, default `{project} --goto {file}:{line}:{col}`).
+- When a project is added, an editor override already in its `project.godot` is kept; otherwise the Hub sets it to **Godot built-in**.
+- **Configure editor…** picks the script editor Godot uses for that project: **Godot built-in** or one of the catalog editors. A path not in the catalog is shown as **Other** and kept. Editing a catalog entry does not rewrite projects that already use it; pick it again to update them.
+- The choice is written to the `[editor_overrides]` section of the project's `project.godot` (only the `text_editor/external/*` keys; other lines are kept). Godot applies it to that project only, without touching the global editor settings. Close the project in Godot before saving, and reopen it to apply.
 
 ## Data and storage
 
@@ -95,13 +101,14 @@ All app data is stored under the Godot `user://` directory:
 Key files:
 
 - `godot_hub_data.json` — versions, projects, and preferences.
+- `editors.json` — the editor catalog (name, path, flags).
 - `versions/` — extracted engine builds.
 - `downloads/` — temporary download files.
 - `godot_manifest_cache.json` — cached GitHub release manifest.
 
 The library JSON has schema 1 and stable project IDs; migration preserves existing fields. Writes retain a `.bak` recovery copy.
 
-Deleting this folder resets the app to a clean state. Your actual Godot projects are never modified.
+Deleting this folder resets the app to a clean state. Your actual Godot projects are never modified, except the `[editor_overrides]` keys you save from **Configure editor…**.
 
 ## Project structure
 
