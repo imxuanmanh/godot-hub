@@ -1,0 +1,37 @@
+@tool
+extends EditorPlugin
+## Fixture-only observer. It never changes settings.
+
+
+func _enter_tree() -> void:
+	var settings: EditorSettings = EditorInterface.get_editor_settings()
+	var report: ConfigFile = ConfigFile.new()
+	for key: String in ["text_editor/external/use_external_editor", "text_editor/external/exec_path", "text_editor/external/exec_flags", "text_editor/appearance/whitespace/draw_tabs"]:
+		report.set_value("editor", key, settings.get_setting(key))
+	report.set_value("paths", "data", OS.get_data_dir())
+	report.set_value("paths", "cache", OS.get_cache_dir())
+	report.set_value("paths", "vscode_appdata", OS.get_environment("VSCODE_APPDATA"))
+	report.save("res://observed.cfg")
+	set_process(true)
+
+
+func _process(_delta: float) -> void:
+	if FileAccess.file_exists("res://open_script"):
+		DirAccess.remove_absolute("res://open_script")
+		var script: Script = load("res://fixture.gd")
+		EditorInterface.edit_script(script)
+		var current: Script = EditorInterface.get_script_editor().get_current_script()
+		var output: FileAccess = FileAccess.open("res://script_opened.txt", FileAccess.WRITE)
+		output.store_string(current.resource_path if current != null else "external")
+		output.close()
+	if FileAccess.file_exists("res://stop"):
+		if FileAccess.file_exists("res://change.cfg"):
+			var changes: ConfigFile = ConfigFile.new()
+			changes.load("res://change.cfg")
+			var settings: EditorSettings = EditorInterface.get_editor_settings()
+			for key: String in changes.get_section_keys("editor"):
+				settings.set_setting(key, changes.get_value("editor", key))
+			var version: Dictionary = Engine.get_version_info()
+			ResourceSaver.save(settings, OS.get_config_dir().path_join("Godot/editor_settings-%s.%s.tres" % [version.major, version.minor]))
+			DirAccess.remove_absolute("res://change.cfg")
+		get_tree().quit()

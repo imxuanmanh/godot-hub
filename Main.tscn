@@ -110,4 +110,9 @@ file_mode = 0
 access = 2
 filters = PackedStringArray("*.godot ; Godot Project Files")
 
+[node name="ErrorDialog" type="AcceptDialog" parent="."]
+size = Vector2i(640, 220)
+dialog_autowrap = true
+transient_to_focused = true
+
 [connection signal="file_selected" from="AddProjectDialog" to="." method="_on_project_file_selected"]

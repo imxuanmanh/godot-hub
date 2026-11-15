@@ -1,6 +1,5 @@
 extends Control
 
-const SAVE_PATH := "user://godot_hub_data.json"
 const TAB_VERSIONS: int = 0
 const TAB_PROJECTS: int = 1
 const TAB_SETTINGS: int = 2
@@ -16,6 +15,9 @@ var projects: Array = []
 var language: String = ""
 var close_on_launch: bool = false
 var _repository_url := ""
+var _data_repository: HubDataRepository = HubDataRepository.new()
+var _load_result: Dictionary = {}
+var _editor_settings: EditorSettingsFeature = EditorSettingsFeature.new()
 
 @onready var tab_container: TabContainer = $Layout/Root/TabContainer
 @onready var versions_tab: VersionsTab = $Layout/Root/TabContainer/Versions
@@ -25,6 +27,7 @@ var _repository_url := ""
 @onready var project_tags_dialog: ProjectTagsDialog = $ProjectTagsDialog
 @onready var add_project_dialog: FileDialog = $AddProjectDialog
 @onready var github_button: Button = $Layout/Root/Header/GithubButton
+@onready var error_dialog: AcceptDialog = $ErrorDialog
 
 
 func _enter_tree() -> void:
@@ -63,9 +66,16 @@ func _ready() -> void:
 
 	settings_tab.language_changed.connect(_on_language_changed)
 	settings_tab.close_on_launch_changed.connect(_on_close_on_launch_changed)
+	_editor_settings.error_occurred.connect(_show_error)
+	_editor_settings.default_changed.connect(settings_tab.set_default_editor)
+	settings_tab.editor_settings_requested.connect(_editor_settings.open_default)
+	projects_tab.editor_settings_requested.connect(_on_project_editor_settings_requested)
+	add_child(_editor_settings)
 
 	_refresh_versions()
 	_refresh_projects()
+	if not _load_result.ok:
+		_show_error.call_deferred(_load_result)
 
 
 # ---------------- LANGUAGE ----------------
@@ -75,7 +85,9 @@ func _on_language_changed(code: String) -> void:
 		return
 	language = code
 	_restore_tab = tab_container.current_tab
-	_save_data()
+	if not _save_data():
+		_restore_tab = -1
+		return
 	TranslationServer.set_locale(language)
 	get_tree().reload_current_scene()
 
@@ -201,13 +213,20 @@ func _on_launch_requested(project_index: int, engine_index: int) -> void:
 	if engine_index < 0 or engine_index >= versions.size():
 		return
 	projects[project_index].engine_index = engine_index
-	_save_data()
-	var pid := OS.create_process(
-		versions[engine_index].path,
-		["--path", projects[project_index].project_dir, "-e"]
-	)
-	if close_on_launch and pid > 0:
+	if not _save_data():
+		return
+	projects_tab.set_launch_busy(true)
+	var result: Dictionary = await _editor_settings.launch(projects[project_index].duplicate(true), versions[engine_index].duplicate(true))
+	projects_tab.set_launch_busy(false)
+	if not result.ok:
+		_show_error(result)
+	elif close_on_launch and result.pid > 0:
 		get_tree().quit()
+
+
+func _on_project_editor_settings_requested(project_index: int) -> void:
+	if project_index >= 0 and project_index < projects.size():
+		_editor_settings.open_project(projects[project_index].id, projects[project_index].name)
 
 
 func _on_engine_changed(project_index: int, engine_index: int) -> void:
@@ -245,48 +264,36 @@ func _on_project_tags_submitted(project_index: int, tags: Array[String]) -> void
 
 # ---------------- PERSISTENCE ----------------
 
-func _save_data() -> void:
-	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
-	if f:
-		f.store_string(JSON.stringify({
-			"versions": versions,
-			"projects": projects,
-			"language": language,
-			"close_on_launch": close_on_launch,
-		}, "\t"))
-		f.close()
+func _save_data() -> bool:
+	var result: Dictionary = _data_repository.save_data({
+		"versions": versions, "projects": projects,
+		"language": language, "close_on_launch": close_on_launch,
+	})
+	_apply_data(_data_repository.snapshot())
+	if not result.ok:
+		_refresh_versions()
+		_refresh_projects()
+		settings_tab.set_language(language)
+		settings_tab.set_close_on_launch(close_on_launch)
+		_show_error(result)
+	return result.ok
 
 
 func _load_data() -> void:
-	language = AppLanguages.DEFAULT
-	if not FileAccess.file_exists(SAVE_PATH):
-		return
-	var f := FileAccess.open(SAVE_PATH, FileAccess.READ)
-	if f == null:
-		return
-	var parsed = JSON.parse_string(f.get_as_text())
-	f.close()
-	if typeof(parsed) == TYPE_DICTIONARY:
-		versions = parsed.get("versions", [])
-		projects = parsed.get("projects", [])
-		_normalize_projects()
-		close_on_launch = bool(parsed.get("close_on_launch", false))
-		var saved_language := str(parsed.get("language", ""))
-		if AppLanguages.is_supported(saved_language):
-			language = saved_language
+	_load_result = _data_repository.load_data()
+	_apply_data(_data_repository.snapshot())
 
 
-func _normalize_projects() -> void:
-	var normalized: Array = []
-	for project in projects:
-		if typeof(project) != TYPE_DICTIONARY:
-			continue
-		project["pinned"] = bool(project.get("pinned", false))
-		var tags: Array[String] = []
-		for tag in project.get("tags", []):
-			var text := str(tag).strip_edges()
-			if not text.is_empty() and not tags.has(text):
-				tags.append(text)
-		project["tags"] = tags
-		normalized.append(project)
-	projects = normalized
+func _apply_data(data: Dictionary) -> void:
+	versions.assign(data.get("versions", []))
+	projects.assign(data.get("projects", []))
+	close_on_launch = bool(data.get("close_on_launch", false))
+	var saved_language: String = str(data.get("language", AppLanguages.DEFAULT))
+	language = saved_language if AppLanguages.is_supported(saved_language) else AppLanguages.DEFAULT
+
+
+func _show_error(result: Dictionary) -> void:
+	error_dialog.title = tr("COMMON_ERROR")
+	error_dialog.dialog_text = tr(str(result.error)) + "\n" + str(result.get("detail", ""))
+	push_warning(error_dialog.dialog_text)
+	error_dialog.popup_centered()
