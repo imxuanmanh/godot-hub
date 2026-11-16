@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://ui/ProjectsTab.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/icons/filter.svg" id="3"]
 
 [node name="ProjectsTab" type="VBoxContainer"]
 layout_mode = 2
@@ -30,18 +31,43 @@ text = "Dự án Godot bạn đang quản lý"
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="SearchEdit" type="LineEdit" parent="Header"]
-custom_minimum_size = Vector2(240, 0)
+[node name="FilterBar" type="HBoxContainer" parent="Header"]
+visible = false
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="SearchEdit" type="LineEdit" parent="Header/FilterBar"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+size_flags_horizontal = 3
 placeholder_text = "Tìm theo tên hoặc tag…"
 clear_button_enabled = true
 
-[node name="CountLabel" type="Label" parent="Header"]
+[node name="TagSelector" type="OptionButton" parent="Header/FilterBar"]
+custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
-theme_override_font_sizes/font_size = 12
-text = "0 project"
-vertical_alignment = 1
+
+[node name="VersionSelector" type="OptionButton" parent="Header/FilterBar"]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+
+[node name="TypeSelector" type="OptionButton" parent="Header/FilterBar"]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+
+[node name="ClearButton" type="Button" parent="Header/FilterBar"]
+custom_minimum_size = Vector2(26, 0)
+layout_mode = 2
+focus_mode = 0
+text = "×"
+flat = true
+
+[node name="FilterButton" type="Button" parent="Header"]
+layout_mode = 2
+toggle_mode = true
+icon = ExtResource("3")
+text = "Bộ lọc"
 
 [node name="RemoveButton" type="Button" parent="Header"]
 layout_mode = 2
@@ -56,11 +82,67 @@ custom_minimum_size = Vector2(0, 200)
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Stack" type="Control" parent="ListStack"]
+[node name="Body" type="VBoxContainer" parent="ListStack"]
+layout_mode = 2
+
+[node name="HeaderRow" type="MarginContainer" parent="ListStack/Body"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 6
+
+[node name="Columns" type="HBoxContainer" parent="ListStack/Body/HeaderRow"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="PinHeader" type="Control" parent="ListStack/Body/HeaderRow/Columns"]
+custom_minimum_size = Vector2(16, 0)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="NameHeader" type="Label" parent="ListStack/Body/HeaderRow/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 11
+text = "Name"
+vertical_alignment = 1
+
+[node name="PathHeader" type="Label" parent="ListStack/Body/HeaderRow/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 4.0
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 11
+text = "Path"
+vertical_alignment = 1
+
+[node name="VersionHeader" type="Label" parent="ListStack/Body/HeaderRow/Columns"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 11
+text = "Version"
+vertical_alignment = 1
+
+[node name="TagsHeader" type="Label" parent="ListStack/Body/HeaderRow/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 11
+text = "Tags"
+vertical_alignment = 1
+
+[node name="Stack" type="Control" parent="ListStack/Body"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Scroll" type="ScrollContainer" parent="ListStack/Stack"]
+[node name="Scroll" type="ScrollContainer" parent="ListStack/Body/Stack"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -69,12 +151,12 @@ grow_horizontal = 2
 grow_vertical = 2
 horizontal_scroll_mode = 0
 
-[node name="Items" type="VBoxContainer" parent="ListStack/Stack/Scroll"]
+[node name="Items" type="VBoxContainer" parent="ListStack/Body/Stack/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
-[node name="EmptyState" type="Label" parent="ListStack/Stack"]
+[node name="EmptyState" type="Label" parent="ListStack/Body/Stack"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

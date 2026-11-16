@@ -23,7 +23,7 @@
 
 The app is written in **GDScript** with **static typing**, follows a feature-oriented structure, and ships with a dark theme and Vietnamese/English localization.
 
-Current patch: **0.1.1**.
+Current patch: **0.1.2**.
 
 ## Features
 

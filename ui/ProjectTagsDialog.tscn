@@ -6,7 +6,7 @@
 [node name="ProjectTagsDialog" type="Window"]
 title = "Project tags"
 initial_position = 2
-size = Vector2i(460, 240)
+size = Vector2i(460, 320)
 visible = false
 exclusive = true
 transient = true
@@ -44,12 +44,39 @@ text = "Project"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
 theme_override_font_sizes/font_size = 12
-text = "Separate tags with commas."
+text = "Type a tag and press Add; press × to remove."
 autowrap_mode = 2
 
-[node name="TagsEdit" type="LineEdit" parent="Content/Root"]
+[node name="TagsScroll" type="ScrollContainer" parent="Content/Root"]
+custom_minimum_size = Vector2(0, 140)
 layout_mode = 2
-placeholder_text = "game, jam, client"
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="TagList" type="VBoxContainer" parent="Content/Root/TagsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="EmptyLabel" type="Label" parent="Content/Root/TagsScroll/TagList"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.607843, 0.639216, 0.686275, 1)
+theme_override_font_sizes/font_size = 12
+text = "No tags yet."
+autowrap_mode = 2
+
+[node name="AddRow" type="HBoxContainer" parent="Content/Root"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TagInput" type="LineEdit" parent="Content/Root/AddRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "game"
+
+[node name="AddButton" type="Button" parent="Content/Root/AddRow"]
+layout_mode = 2
+text = "Add"
 
 [node name="Footer" type="HBoxContainer" parent="Content/Root"]
 layout_mode = 2

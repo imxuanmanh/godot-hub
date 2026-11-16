@@ -67,6 +67,7 @@ func _ready() -> void:
 	projects_tab.pin_toggled.connect(_on_pin_toggled)
 	projects_tab.tags_requested.connect(_on_project_tags_requested)
 	projects_tab.editor_config_requested.connect(_on_editor_config_requested)
+	projects_tab.open_folder_requested.connect(_on_open_folder_requested)
 	project_tags_dialog.tags_submitted.connect(_on_project_tags_submitted)
 	project_editor_dialog.editor_saved.connect(_on_project_editor_saved)
 
@@ -273,6 +274,16 @@ func _on_editor_removed(editor_path: String) -> void:
 	var result: Dictionary = EditorOverridesStore.reset_projects_to_builtin(project_dirs, editor_path)
 	if not result.ok:
 		_show_error(result)
+
+
+func _on_open_folder_requested(project_index: int) -> void:
+	if project_index < 0 or project_index >= projects.size():
+		return
+	var project_dir := str(projects[project_index].project_dir)
+	var error := OS.shell_open(project_dir) if DirAccess.dir_exists_absolute(project_dir) else ERR_FILE_NOT_FOUND
+	if error != OK:
+		_show_error({"error": "ERR_OPEN_FOLDER", "detail": project_dir})
+		return
 
 
 func _on_engine_changed(project_index: int, engine_index: int) -> void:

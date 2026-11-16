@@ -53,22 +53,22 @@ func _build_choices(current: Dictionary, editors: Array[Dictionary]) -> void:
 		_add_choice(label, EditorOverridesStore.MODE_EXTERNAL, str(current.path), str(current.flags))
 
 
-func _add_choice(label: String, mode: String, path: String, flags: String) -> void:
+func _add_choice(label: String, choice_mode: String, path: String, flags: String) -> void:
 	mode_selector.add_item(label)
-	_choices.append({"mode": mode, "path": path, "flags": flags})
+	_choices.append({"mode": choice_mode, "path": path, "flags": flags})
 
 
 func _find_current(current: Dictionary) -> int:
-	var mode: String = str(current.mode)
+	var current_mode: String = str(current.mode)
 	for i: int in _choices.size():
 		var choice: Dictionary = _choices[i]
-		if choice.mode != mode:
+		if choice.mode != current_mode:
 			continue
-		if mode != EditorOverridesStore.MODE_EXTERNAL:
+		if current_mode != EditorOverridesStore.MODE_EXTERNAL:
 			return i
 		if str(choice.path).simplify_path() == str(current.path).strip_edges().simplify_path():
 			return i
-	return -1 if mode == EditorOverridesStore.MODE_EXTERNAL else 0
+	return -1 if current_mode == EditorOverridesStore.MODE_EXTERNAL else 0
 
 
 func _on_save() -> void:
