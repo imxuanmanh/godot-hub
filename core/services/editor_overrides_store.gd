@@ -15,6 +15,9 @@ const MODE_INHERIT: String = "inherit"
 const MODE_BUILTIN: String = "builtin"
 const MODE_EXTERNAL: String = "external"
 const DEFAULT_FLAGS: String = "{project} --goto {file}:{line}:{col}"
+## Hub-only placeholder: resolved to the project's .sln before Godot ever sees it.
+const PLACEHOLDER_SOLUTION: String = "{solution}"
+const SOLUTION_EXTENSION: String = "sln"
 
 
 ## Returns {ok, mode, path, flags}; mode is inherit when no managed key is set.
@@ -40,7 +43,8 @@ static func save_overrides(project_dir: String, mode: String, path: String, flag
 	if not FileAccess.file_exists(file_path):
 		return SafeFile.failure(file_path, ERR_FILE_NOT_FOUND)
 	var text: String = FileAccess.get_file_as_string(file_path)
-	var updated: String = apply_overrides(text, build_values(mode, path, flags))
+	var resolved: String = resolve_flags(project_dir, flags) if mode == MODE_EXTERNAL else flags
+	var updated: String = apply_overrides(text, build_values(mode, path, resolved))
 	if updated == text:
 		return {"ok": true}
 	var result: Dictionary = SafeFile.write_text(file_path, updated)
@@ -64,16 +68,68 @@ static func build_values(mode: String, path: String, flags: String) -> Dictionar
 	return {}
 
 
+## Replaces the Hub-only {solution} placeholder with the project's .sln path.
+## Without a clear solution it falls back to the quoted {project} directory.
+static func resolve_flags(project_dir: String, flags: String) -> String:
+	if not flags.contains(PLACEHOLDER_SOLUTION):
+		return flags
+	var solution: String = find_solution(project_dir)
+	var replacement: String = "\"%s\"" % solution if not solution.is_empty() else "\"{project}\""
+	return flags.replace(PLACEHOLDER_SOLUTION, replacement)
+
+
+## The single .sln in project_dir, preferring one named like the folder; "" when absent or ambiguous.
+static func find_solution(project_dir: String) -> String:
+	if not DirAccess.dir_exists_absolute(project_dir):
+		return ""
+	var solutions: PackedStringArray = PackedStringArray()
+	for file: String in DirAccess.get_files_at(project_dir):
+		if file.get_extension().to_lower() == SOLUTION_EXTENSION:
+			solutions.append(file)
+	if solutions.is_empty():
+		return ""
+	var folder: String = project_dir.simplify_path().get_file()
+	for file: String in solutions:
+		if file.get_basename().to_lower() == folder.to_lower():
+			return project_dir.path_join(file)
+	return project_dir.path_join(solutions[0]) if solutions.size() == 1 else ""
+
+
+## Reverts every project that points at exec_path back to Godot built-in.
+## Missing project.godot entries are skipped; a failed write stops the batch.
+static func reset_projects_to_builtin(project_dirs: Array[String], exec_path: String) -> Dictionary:
+	var changed: int = 0
+	for project_dir: String in project_dirs:
+		var result: Dictionary = reset_to_builtin_if_matches(project_dir, exec_path)
+		if not result.ok:
+			return result
+		if result.changed:
+			changed += 1
+	return {"ok": true, "changed": changed}
+
+
+## Switches a project to built-in only when its override points at exec_path.
+static func reset_to_builtin_if_matches(project_dir: String, exec_path: String) -> Dictionary:
+	if not FileAccess.file_exists(project_dir.path_join(PROJECT_FILE)):
+		return {"ok": true, "changed": false}
+	var config: Dictionary = load_overrides(project_dir)
+	if not config.ok:
+		return config
+	if str(config.mode) != MODE_EXTERNAL or not _same_path(str(config.path), exec_path):
+		return {"ok": true, "changed": false}
+	var saved: Dictionary = save_overrides(project_dir, MODE_BUILTIN, "", "")
+	saved["changed"] = saved.ok
+	return saved
+
+
+static func _same_path(a: String, b: String) -> bool:
+	return a.strip_edges().simplify_path().to_lower() == b.strip_edges().simplify_path().to_lower()
+
+
 ## Pure text transform: rewrites the section with the managed keys, keeping every other line.
 static func apply_overrides(text: String, values: Dictionary) -> String:
-	var newline: String = "
-" if text.contains("
-") else "
-"
-	var lines: PackedStringArray = text.replace("
-", "
-").split("
-")
+	var newline: String = "\r\n" if text.contains("\r\n") else "\n"
+	var lines: PackedStringArray = text.replace("\r\n", "\n").split("\n")
 	var bounds: Vector2i = _section_bounds(lines)
 	var before: PackedStringArray = lines
 	var after: PackedStringArray = PackedStringArray()

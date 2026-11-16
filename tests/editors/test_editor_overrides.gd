@@ -46,6 +46,36 @@ func _run() -> void:
 	assert(EditorOverridesStore.load_overrides(dir).mode == "builtin")
 	assert(EditorOverridesStore.save_overrides(dir, "inherit", "", "").ok)
 	assert(FileAccess.get_file_as_string(dir.path_join("project.godot")).strip_edges() == BASE.strip_edges())
+
+	var rider_flags: String = "{solution} --line {line} {file}"
+	assert(EditorOverridesStore.resolve_flags(dir, "{project}") == "{project}")
+	assert(EditorOverridesStore.resolve_flags(dir, "{solution}") == "\"{project}\"")
+	assert(SafeFile.write_text(dir.path_join("Game.sln"), "").ok)
+	assert(EditorOverridesStore.resolve_flags(dir, rider_flags) == "\"%s\" --line {line} {file}" % dir.path_join("Game.sln"))
+	assert(EditorOverridesStore.save_overrides(dir, "external", "C:/Rider/rider64.exe", rider_flags).ok)
+	assert(EditorOverridesStore.load_overrides(dir).flags == "\"%s\" --line {line} {file}" % dir.path_join("Game.sln"))
+
+	var folder_sln: String = dir.get_file() + ".sln"
+	assert(SafeFile.write_text(dir.path_join(folder_sln), "").ok)
+	assert(EditorOverridesStore.find_solution(dir) == dir.path_join(folder_sln), EditorOverridesStore.find_solution(dir))
+	DirAccess.remove_absolute(dir.path_join(folder_sln))
+	DirAccess.remove_absolute(dir.path_join("Game.sln"))
+	assert(EditorOverridesStore.find_solution(dir) == "")
+	assert(EditorOverridesStore.resolve_flags(dir, rider_flags) == "\"{project}\" --line {line} {file}")
+
+	# Removing a catalog editor reverts projects that pointed at it.
+	assert(EditorOverridesStore.reset_to_builtin_if_matches(dir, "C:/Other/Code.exe").changed == false)
+	assert(EditorOverridesStore.load_overrides(dir).mode == "external")
+	var reset: Dictionary = EditorOverridesStore.reset_to_builtin_if_matches(dir, "c:/rider/RIDER64.exe")
+	assert(reset.ok and reset.changed, str(reset))
+	assert(EditorOverridesStore.load_overrides(dir).mode == "builtin")
+
+	assert(EditorOverridesStore.save_overrides(dir, "external", "C:/Rider/rider64.exe", rider_flags).ok)
+	var dirs: Array[String] = [dir, dir.path_join("missing")]
+	var batch: Dictionary = EditorOverridesStore.reset_projects_to_builtin(dirs, "C:/Rider/rider64.exe")
+	assert(batch.ok and batch.changed == 1, str(batch))
+	assert(EditorOverridesStore.load_overrides(dir).mode == "builtin")
+
 	assert(not EditorOverridesStore.load_overrides(dir.path_join("missing")).ok)
 	print("Editor overrides checks passed.")
 	quit()

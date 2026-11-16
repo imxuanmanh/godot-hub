@@ -26,16 +26,32 @@ func _run() -> void:
 	assert(catalog.list().size() == 2 and tab.items_container.get_child_count() == 2)
 	assert(not tab.empty_state.visible)
 
+	var removed_paths: Array = []
+	tab.editor_removed.connect(func(path: String) -> void: removed_paths.append(path))
 	tab._select(0)
 	tab._confirm_remove(0)
 	tab.confirm_dialog.confirmed.emit()
 	tab.confirm_dialog.hide()
 	assert(catalog.list().size() == 1 and catalog.list()[0].name == "Rider", str(catalog.list()))
+	assert(removed_paths == ["C:/Code/Code.exe"], str(removed_paths))
 
 	var errors: Array = []
 	tab.error_occurred.connect(func(result: Dictionary) -> void: errors.append(result))
 	tab.form_dialog.submitted.emit(-1, "", "", "")
 	assert(errors.size() == 1 and errors[0].error == "EDITOR_INVALID")
+
+	var form: EditorFormDialog = tab.form_dialog
+	form.open_form(-1, {})
+	form._on_file_selected("C:/Rider/rider64.exe")
+	assert(form.args_edit.text == "{solution} --line {line} {file}", form.args_edit.text)
+	assert(form.name_edit.text == "JetBrains Rider", form.name_edit.text)
+	form.args_edit.text = "{file}"
+	form._reset_flags()
+	assert(form.args_edit.text == "{solution} --line {line} {file}", form.args_edit.text)
+	form.path_edit.text = "C:/Tools/notepad.exe"
+	form._reset_flags()
+	assert(form.args_edit.text == EditorOverridesStore.DEFAULT_FLAGS, form.args_edit.text)
+	form.hide()
 
 	var dialog: ProjectEditorDialog = load("res://ui/ProjectEditorDialog.tscn").instantiate()
 	root.add_child(dialog)

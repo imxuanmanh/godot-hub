@@ -73,6 +73,7 @@ func _ready() -> void:
 	var catalog_result: Dictionary = _editor_catalog.load_catalog()
 	editors_tab.setup(_editor_catalog)
 	editors_tab.error_occurred.connect(_show_error)
+	editors_tab.editor_removed.connect(_on_editor_removed)
 	if not catalog_result.ok:
 		_show_error.call_deferred(catalog_result)
 
@@ -260,6 +261,16 @@ func _on_project_editor_saved(project_index: int, mode: String, path: String, fl
 	var result: Dictionary = EditorOverridesStore.save_overrides(
 		str(projects[project_index].project_dir), mode, path, flags
 	)
+	if not result.ok:
+		_show_error(result)
+
+
+# Projects still pointing at the removed editor fall back to Godot built-in.
+func _on_editor_removed(editor_path: String) -> void:
+	var project_dirs: Array[String] = []
+	for project in projects:
+		project_dirs.append(str(project.project_dir))
+	var result: Dictionary = EditorOverridesStore.reset_projects_to_builtin(project_dirs, editor_path)
 	if not result.ok:
 		_show_error(result)
 

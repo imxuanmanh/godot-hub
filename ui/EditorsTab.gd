@@ -3,6 +3,8 @@ extends VBoxContainer
 ## Lists catalog editors and lets the user add, edit or remove them.
 
 signal error_occurred(result: Dictionary)
+## Emitted after an editor is removed from the catalog, with its executable path.
+signal editor_removed(editor_path: String)
 
 const ITEM_SCENE := preload("res://ui/EditorItem.tscn")
 const MENU_EDIT: int = 0
@@ -92,7 +94,13 @@ func _confirm_remove(index: int) -> void:
 func _on_remove_confirmed() -> void:
 	var index := _context_index
 	_context_index = -1
-	_apply(_catalog.remove(index))
+	if index < 0 or index >= _editors.size():
+		return
+	var removed_path: String = str(_editors[index].path)
+	var result: Dictionary = _catalog.remove(index)
+	_apply(result)
+	if result.ok:
+		editor_removed.emit(removed_path)
 
 
 func _on_form_submitted(index: int, editor_name: String, path: String, flags: String) -> void:
